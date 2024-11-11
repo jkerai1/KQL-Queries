@@ -12,3 +12,4 @@ DeviceNetworkEvents //print replace_string(RemoteUrl,'[.]','.') //to test
 | where Url has "microsoft"
 | summarize by tostring(Domain_split),tostring(Url), RemoteUrl
 | where Url <> "admin.microsoft.exchange.com" //supplement whitelist 
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)

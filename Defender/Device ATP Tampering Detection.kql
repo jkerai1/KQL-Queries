@@ -1,0 +1,24 @@
+//This query detects attempts to tamper with ATP settings
+//Correlates tampering events with the most recent logged-in user
+let ExcludedAccounts = pack_array(//include any system users such as the ATP user account that might be used in the background to this array);
+let TamperInfo = DeviceEvents
+| where Timestamp > ago(1d)
+| where ActionType == 'TamperingAttempt' 
+| where RegistryValueName startswith "Enable" or RegistryValueName startswith "Disable"
+| extend ParsedFields=parse_json(AdditionalFields)
+| project EventTime=Timestamp, DeviceName, RegistryKey, RegistryValueName, RegistryValueChangeAttempt=ParsedFields.TamperingAttemptedValue, Action=ParsedFields.TamperingAction, Status=ParsedFields.Status;
+let UserLogons = DeviceLogonEvents
+| where Timestamp > ago(1d)
+| where AccountName !in (ExcludedAccounts)
+| where ActionType == 'LogonSuccess'
+| where AccountDomain !hassuffix ".local"
+| project UserLogonTime=Timestamp, AccountDomain, AccountName, DeviceName, DeviceId, ActionType;
+let TamperStatus = TamperInfo
+| join kind=inner (UserLogons) on DeviceName
+| extend TimeDiff = abs(datetime_diff('minute', EventTime, UserLogonTime))
+| where TimeDiff <= 1440  //to check for an tampering event during the same day of the login
+| sort by RegistryValueName, UserLogonTime desc
+| summarize arg_min(TimeDiff, *) by RegistryValueName, EventTime
+| project RegistryValueName, TimeDiff, EventTime, UserLogonTime, AccountName, DeviceName, DeviceId, RegistryKey, RegistryValueChangeAttempt, Status;
+TamperStatus
+| sort by EventTime asc 

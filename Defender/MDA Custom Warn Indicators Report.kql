@@ -1,0 +1,7 @@
+//This query reports on MDE Indicators in Warn mode and CASB/MDA warnings
+//Shows how MDA replicates "monitor/unsanction" tags to MDE Indicators
+DeviceEvents
+| where ActionType == "SmartScreenUrlWarning" 
+| where AdditionalFields.Experience == "CasbPolicy"
+//| join kind=leftouter IdentityInfo on $left.InitiatingProcessAccountUpn == $right.AccountUPN //use if you have UEBA Enabled
+| summarize count() by FileName, RemoteUrl, DeviceName, InitiatingProcessAccountUpn, InitiatingProcessFileName, TimeGenerated, InitiatingProcessVersionInfoProductName//, JobTitle 

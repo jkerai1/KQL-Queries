@@ -1,0 +1,5 @@
+//This query detects tampering of Zscaler registry keys for Start and State values
+DeviceRegistryEvents
+| where RegistryKey == "HKEY_LOCAL_MACHINE\\SYSTEM\\ControlSet001\\Services\\ZSAService" or RegistryKey contains @"SOFTWARE\ZScaler\App"
+| where RegistryValueName == "Start" or RegistryValueName contains "State"
+| where RegistryValueData == "4" or RegistryValueData == "3" or RegistryValueData  == "OFF" or RegistryValueData  contains "None"//3 = Manual , 4 = Disabled 

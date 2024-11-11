@@ -1,0 +1,66 @@
+// Set the amount of days to monitor
+let StartTime = ago(7d);
+// Create lists to categorize files based on their extension
+let CertificateFileExtensions = dynamic([".crt",".cer",".ca-bundle",".p7b",".p7c",".p7s",".pem",".key",".keystore",".jks",".p12",".pfx",".pem"]);
+let CompressedFileExtensions = dynamic([".7z",".arj",".deb",".pkg",".rar",".rpm",".gz",".z",".zip",".001",".002",".003",".004",".005",".006",".007",".008",".009",".010",".011",".012",".013",".014",".015",".016",".017",".018",".019",".020",".021",".022",".023",".024",".025",".026",".027",".028",".029",".030",".031",".032",".033",".034",".035",".036",".037",".038",".039",".040",".041",".042",".043",".044",".045",".046",".047",".048",".049",".050",".051",".052",".053",".054",".055",".056",".057",".058",".059",".060",".061",".062",".063",".064",".065",".066",".067",".068",".069",".070",".071",".072",".073",".074",".075",".076",".077",".078",".079",".080",".081",".082",".083",".084",".085",".086",".087",".088",".089",".090",".091",".092",".093",".094",".095",".096",".097",".098",".099"]);
+let DatabaseFileExtensions = dynamic([".$ER",".3DB",".4MP",".ACAD",".ACCDB",".ACCDT",".ADE",".ADP",".APX",".AWDB",".BIB",".BTR",".CDB",".CLG",".CMA",".CRP",".CWDB",".DB",".DB2",".DB3",".DBF",".DBS",".DBW",".DBX",".DCX",".DF1",".DF2",".DF3",".DF4",".DNL",".DSD",".DTF",".FDB",".FP5",".FP7",".FW2",".FW3",".FW4",".GDB",".IND",".INX",".IPD",".ITDB",".JOD",".KDB",".LACCDB",".LDB",".LK",".MDB",".MDE",".MDF",".MDN",".MN4",".MODB",".MPD",".NCB",".NDB",".NDF",".NDX",".NS2",".NS3",".NS4",".NS5",".NSF",".NTF",".OD1",".OD2",".OD3",".OD4-9",".ODB",".OECL",".OIF",".OV",".PDB",".PDT",".PHD",".PHO",".PX",".RFP",".RPD",".RSD",".SD2",".SDB",".SQL",".SQLITE",".SSD",".SVY",".SWD",".SWDB",".TDB",".THM",".USR",".WD2",".WDB",".XG0",".XG1",".XG2",".XG3",".XVU",".ZBD"]);
+let DocumentFileExtensions = dynamic([".ods",".xls",".xlsm",".xltm",".xlsx",".doc",".docx",".odt",".pdf",".ppt",".pptx",".rtf",".tex",".txt",".wpd",".csv",".dot",".dotm",".docm",".vsd",".vsdx"]);
+let EmailFileExtensions = dynamic([".email",".eml",".emlx",".msg",".oft",".ost",".pst",".vcf"]);
+let ExecutableFileExtensions = dynamic([".apk",".bat",".bin",".cgi",".ps1",".pl",".cmd",".com",".exe",".gadget",".hta",".jar",".msi",".msp",".mst",".py",".wsf",".vbs"]);
+let ImageFileExtensions = dynamic([".ai",".bmp",".gif",".ico",".jpeg",".jpg",".png",".ps",".psd",".svg",".stl",".tif",".tiff"]);
+let SystemFileExtensions = dynamic([".bak",".cab",".cfg",".config",".cpl",".cur",".dll",".dmp",".drv",".efi",".reg",".icns",".ico",".inf",".ini",".nls",".lnk",".not_dll",".msi",".stz",".not_exe",".winmd",".sys",".tmp",".mui"]);
+let WebFileExtensions = dynamic([".asp",".aspx",".cfm",".css",".crdownload",".htm",".html",".js",".jsp",".part",".php",".ocx",".rss",".swf",".xhtml"]);
+let KnownFileExtensions = array_concat(CertificateFileExtensions, CompressedFileExtensions, DatabaseFileExtensions, DocumentFileExtensions, EmailFileExtensions ,ImageFileExtensions, ExecutableFileExtensions, SystemFileExtensions, WebFileExtensions);
+// Part 1: Create a list of files writen to external storage per date and device
+let ListAllFiles = (
+// Get the external storage mounts from StartTime
+DeviceEvents
+| where ActionType == "UsbDriveMount" and Timestamp > StartTime
+| extend AF=parse_json(AdditionalFields)
+| extend USBDeviceName = strcat(tostring(AF.Manufacturer), " ", tostring(AF.ProductName)), DriveLetter=tostring(AF.DriveLetter)
+| project USBMountTime = Timestamp, DeviceId, DeviceName, DriveLetter, USBDeviceName
+| join (
+// List all file creates to drive letters from StartTime
+DeviceFileEvents
+| where ActionType == "FileCreated" and Timestamp > StartTime
+| parse FolderPath with DriveLetter '\\' * 
+| extend DriveLetter = tostring(DriveLetter) 
+)
+// join external mounts and file creates
+on DeviceId, DriveLetter
+// create a column for the file extensions
+| extend DotCount = countof(FileName,".")
+| extend FileExtension = strcat(".", split(FileName,".",DotCount)[0])
+// Create an array of the copied Files and their information
+| summarize FileSet = make_set(FolderPath), CopiedFilesMB = (sum(FileSize)/1000000), TotalFileCount = count(FileExtension), CerticateFileCount = count(FileExtension in~ (CertificateFileExtensions)), CompressedFileCount = count(FileExtension in~ (CompressedFileExtensions)), DatabaseFileCount = count(FileExtension in~ (DatabaseFileExtensions)), DocumentFileCount = count(FileExtension in~ (DocumentFileExtensions)), EmailFileCount = count(FileExtension in~ (EmailFileExtensions)), SystemFileCount = count(FileExtension in~ (SystemFileExtensions)), ExecutableFileCount = count(FileExtension in~ (ExecutableFileExtensions)), WebFileCount = count(FileExtension in~ (WebFileExtensions)), OtherFileCount = count(FileExtension !in~(KnownFileExtensions)), UniqueSHA1Hash = dcount(SHA1), UnknownFileExtensions = make_set_if(FileExtension, FileExtension !in~(KnownFileExtensions)) by bin(Timestamp, 1d), DeviceId, DeviceName ,InitiatingProcessAccountName, USBDeviceName
+);
+// Part 2: Create the anomaly detection of USB writes based on MB written
+// Get the external storage mounts from StartTime
+DeviceEvents
+| where ActionType == "UsbDriveMount" and Timestamp > StartTime
+| extend AF=parse_json(AdditionalFields)
+| extend DriveLetter=tostring(AF.DriveLetter)
+| project USBMountTime = Timestamp, DeviceId, DriveLetter
+| join (
+// List all file creates to drive letters from StartTime
+DeviceFileEvents
+| where ActionType == "FileCreated" and Timestamp > StartTime
+| parse FolderPath with DriveLetter '\\' * 
+| extend DriveLetter = tostring(DriveLetter) 
+)
+// join external mounts and file creates
+on DeviceId, DriveLetter
+// Make a series with the FileSizes per day on Device ID and InitiatingProcessAccountName
+| make-series CopiedFilesMB = (sum(FileSize)/1000000) on Timestamp in range(startofday(StartTime),now(), 1d) by DeviceId, InitiatingProcessAccountName
+// Use series_decompose_anomalies to do anomaly detection
+| extend (AnomaliesDetected, AnomaliesScore, AnomaliesBaseline) = series_decompose_anomalies(CopiedFilesMB, 1.5, -1, 'linefit')
+// Use mv-expand expand all results to single lines
+| mv-expand CopiedFilesMB to typeof(double), Timestamp to typeof(datetime), AnomaliesDetected to typeof(double), AnomaliesScore to typeof(double), AnomaliesBaseline to typeof(long)
+// Only show items where anomalies are detected
+| where AnomaliesDetected == 1
+// join the Anomalies and the information of part 1
+| join ListAllFiles on DeviceId, InitiatingProcessAccountName, Timestamp
+// project-away the duplicate columns
+| project-away *1
+// Apply filtering
+| where CopiedFilesMB >= 100 or DocumentFileCount > 10

@@ -1,0 +1,5 @@
+CloudAppEvents
+| where ActionType == "SetAdvancedFeatures"
+| extend SettingName = tostring(parse_json(RawEventData).SettingName), SettingsNewValue = tostring(parse_json(RawEventData).SettingsNewValue)
+| where SettingName == "Live Response unsigned script execution"
+| project-reorder TimeGenerated, AccountId, ActionType, SettingName, SettingsNewValue

@@ -13,4 +13,5 @@ union SigninLogs, AADNonInteractiveUserSignInLogs
 | where UserDisplayName == "On-Premises Directory Synchronization Service Account" or UserPrincipalName startswith "sync_"
 | where TimeGenerated >= ago(endtime) 
 | join kind= leftouter (historicalActivity) on IPAddress
-|where historicalCount < threshold or isempty(historicalCount) 
+| where historicalCount < threshold or isempty(historicalCount) 
+| extend VT_IP= iff(isnotempty(IPAddress),strcat(@"https://www.virustotal.com/gui/ip-address/",IPAddress),IPAddress)

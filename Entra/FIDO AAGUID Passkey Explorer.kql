@@ -1,0 +1,17 @@
+//This query looks up AAGUIDs with their device manufacturer using Passkey Explorer
+//Can be joined with audit logs to track passkey additions
+let PasskeyExplorer = externaldata(Guid: dynamic )[@"https://raw.githubusercontent.com/passkeydeveloper/passkey-authenticator-aaguids/main/combined_aaguid.json"] with (format="txt", ignoreFirstRecord=false)
+| mv-expand kind=array Guid
+| extend AAGUID = tostring(Guid[0])
+| extend KeyName = Guid[1].name
+| project-away Guid;
+//PasskeyExplorer
+//Example usage, join to audit logs
+AuditLogs
+| where ActivityDisplayName contains "Add Passkey"
+| where Result == "success"
+| extend AccountUPN = TargetResources[0].userPrincipalName
+| extend AAGUID = tostring(AdditionalDetails[1].value)
+| extend WebAuthnInfo = AdditionalDetails[0].value
+| join kind=leftouter PasskeyExplorer on AAGUID
+| project TimeGenerated, AccountUPN, ActivityDisplayName, AAGUID, WebAuthnInfo, KeyName 

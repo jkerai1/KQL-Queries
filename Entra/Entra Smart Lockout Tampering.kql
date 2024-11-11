@@ -1,0 +1,11 @@
+AuditLogs
+| where OperationName == "Update company settings"
+| where Category == "DirectoryManagement"
+| extend User = tostring(parse_json(tostring(parse_json(InitiatedBy).user)).userPrincipalName)
+| extend NewLockoutPolicy = toint(parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[0].newValue))[0].Settings))[0].Properties))[4].Value)
+| extend OldLockoutPolicy  =toint(parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[0].oldValue))[0].Settings))[0].Properties))[4].Value)
+| extend NewLockoutDuration =toint(parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[0].newValue))[0].Settings))[0].Properties))[3].Value)
+| extend OldLockoutDuration =toint(parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[0].oldValue))[0].Settings))[0].Properties))[4].Value)
+| where NewLockoutPolicy > 10 or NewLockoutDuration < 60
+| where OldLockoutDuration != NewLockoutDuration and NewLockoutPolicy != OldLockoutPolicy
+| summarize by NewLockoutPolicy, OldLockoutPolicy,NewLockoutDuration,OldLockoutDuration, User

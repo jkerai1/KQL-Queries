@@ -1,0 +1,8 @@
+AuditLogs
+| where Category == "DirectoryManagement"
+| where OperationName == "Create Company"
+| where Result == "success"
+| extend AccountID = parse_json(tostring(InitiatedBy.user)).id
+| extend InitiatingIPAddress = parse_json(tostring(InitiatedBy.user)).ipAddress
+| extend InitiatingUPN = parse_json(tostring(InitiatedBy.user)).userPrincipalName
+| extend CreatedTenantID =  TargetResources[0].id

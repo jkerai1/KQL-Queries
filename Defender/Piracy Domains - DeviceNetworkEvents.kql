@@ -4,4 +4,5 @@ let DomainList = PiracyIOCs
 DeviceNetworkEvents
 | where TimeGenerated > ago(90d)
 | where RemoteUrl in~(DomainList )
-| summarize count() by RemoteUrl
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
+| summarize count() by RemoteUrl, VT_domain

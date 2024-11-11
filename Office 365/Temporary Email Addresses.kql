@@ -1,0 +1,5 @@
+let TempEmailAddresses = externaldata (mail: string) [@'https://raw.githubusercontent.com/jkerai1/TLD-TABL-Block/refs/heads/main/tempmail-abused%20emaildomains.txt'] with (format=csv, ignoreFirstRecord=False);
+EmailEvents
+| where TimeGenerated > ago(90d)
+| where SenderFromDomain has_any (TempEmailAddresses) or RecipientEmailAddress has_any(TempEmailAddresses) 
+// Visit https://github.com/jkerai1/TLD-TABL-Block for Block Script

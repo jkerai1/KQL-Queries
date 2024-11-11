@@ -1,0 +1,16 @@
+//This query detects suspicious sign-ins to on-premises directory sync account
+//Directory sync account has special permissions and cannot perform MFA
+//Activity outside baseline warrants investigation
+let starttime = 14d;
+let endtime = 1d;
+let threshold = 400;
+let historicalActivity =
+union SigninLogs, AADNonInteractiveUserSignInLogs
+| where TimeGenerated between(ago(starttime)..ago(endtime))
+| where UserDisplayName == "On-Premises Directory Synchronization Service Account" or UserPrincipalName startswith "sync_"
+| summarize historicalCount = count() by IPAddress;
+union SigninLogs, AADNonInteractiveUserSignInLogs
+| where UserDisplayName == "On-Premises Directory Synchronization Service Account" or UserPrincipalName startswith "sync_"
+| where TimeGenerated >= ago(endtime) 
+| join kind= leftouter (historicalActivity) on IPAddress
+|where historicalCount < threshold or isempty(historicalCount) 

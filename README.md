@@ -1,0 +1,2 @@
+# KQL-Queries
+KQL Queries

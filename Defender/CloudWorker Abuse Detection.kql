@@ -9,3 +9,4 @@ let CloudFlareWorkers = NetskopeCloudflareWorkers
 | distinct RemoteUrl; 
 DeviceNetworkEvents
 | where RemoteUrl in (CloudFlareWorkers) //example, use as you please 
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)

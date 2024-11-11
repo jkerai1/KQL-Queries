@@ -1,0 +1,10 @@
+let RMMtools = externaldata (description: string, remote_domain: string, remote_utility: string, remote_utility_fileinfo: string) 
+    ["https://raw.githubusercontent.com/splunk/security_content/refs/heads/develop/lookups/remote_access_software20240726.csv"] with(format='csv', ignoreFirstRecord=true);
+RMMtools
+| where remote_utility != ""
+| join kind=inner DeviceProcessEvents on $left.remote_utility == $right.InitiatingProcessFileName
+| summarize by DeviceName, AccountName, InitiatingProcessFileName, InitiatingProcessCommandLine, InitiatingProcessParentFileName, ProcessVersionInfoCompanyName, ProcessVersionInfoFileDescription, description
+| extend Host_0_HostName = DeviceName
+| extend Account_0_Name = AccountName
+| extend Process_0_CommandLine = InitiatingProcessCommandLine
+| extend File_0_Name = InitiatingProcessFileName

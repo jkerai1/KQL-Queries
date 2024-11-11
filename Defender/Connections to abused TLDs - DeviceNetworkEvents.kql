@@ -1,0 +1,31 @@
+//Get spamhaus TLD list
+let spamhausTLDS = (externaldata(['TLD']: string, ['Badness Index']: string)
+[h@"https://raw.githubusercontent.com/cyb3rmik3/Hunting-Lists/main/spamhaus-abused-tlds.csv"]with (format="csv"))
+| extend TLD = iif(TLD startswith ".",replace_string(TLD,".",""),TLD)
+| where TLD != "TLD";
+//Get info-sec TLD list
+let infosecTLDs = (externaldata(TLD: string)
+[h@"https://www.info-sec.ca/tld-block.txt"]with (format="csv"))
+| where TLD !startswith "#";
+//Union lists together
+let list_tlds = union spamhausTLDS, infosecTLDs
+| project TLD;
+//Exclude potential noise by uncommenting line below
+//| where TLD !in ("live","info","link")
+DeviceNetworkEvents
+| where ActionType == "ConnectionSuccess"
+| where isnotempty(RemoteUrl)
+//Remove start and end of URL
+| extend RemoteUrl = iif(RemoteUrl startswith "https://",replace_string(RemoteUrl,"https://",""),iif(RemoteUrl startswith "http://",replace_string(RemoteUrl, "http://",""),RemoteUrl))
+| extend slashindex = indexof(RemoteUrl, "/")
+| extend RemoteUrl = iif(RemoteUrl contains "/",substring(RemoteUrl, 0, slashindex),RemoteUrl)
+| extend tld = tostring(split(RemoteUrl, ".")[-1])
+| extend VT_Link = strcat("https://www.virustotal.com/gui/domain/",RemoteUrl)
+| extend Abuse_Link = strcat("https://www.abuseipdb.com/check/",RemoteIP)
+//Validate parsed domain by checking TLD against TLDs from threat feed and drop domains where there is no chance of a match
+| where tld in~ (list_tlds)
+| project-away slashindex
+| project-reorder TimeGenerated, tld, VT_Link, Abuse_Link, RemoteUrl, InitiatingProcessAccountUpn, DeviceName
+| extend Host_0_HostName = DeviceName
+| extend Account_0_Name = InitiatingProcessAccountUpn
+| extend URL_0_Url = RemoteUrl

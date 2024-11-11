@@ -1,0 +1,5 @@
+//This query will return the tenant ID for a domain. This has little use-case today but if externaldata allowed variables then this could be quite useful as a function
+let OIDC = externaldata(token_endpoint: string)["https://login.microsoftonline.com/google.com/.well-known/openid-configuration"] with (format="csv", ignoreFirstRecord=False); //replace "google.com" with domain you want to search
+OIDC 
+| extend TenantID = replace_string(replace_string(token_endpoint,"{\"token_endpoint\":\"https://login.microsoftonline.com/",""),"/oauth2/token\"","")
+| project-away token_endpoint

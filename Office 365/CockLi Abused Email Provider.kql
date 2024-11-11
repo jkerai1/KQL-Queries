@@ -1,0 +1,4 @@
+let CockLiMailAddresses = externaldata (cocklimail: string) [@'https://raw.githubusercontent.com/jkerai1/TLD-TABL-Block/refs/heads/main/cockli-abused-Email-domains.txt'] with (format=csv, ignoreFirstRecord=False);
+EmailEvents
+| where SenderFromDomain has_any (CockLiMailAddresses) or RecipientEmailAddress has_any(CockLiMailAddresses) 
+// Visit https://github.com/jkerai1/TLD-TABL-Block for Block Script

@@ -5,3 +5,4 @@ DeviceNetworkEvents
 | where TimeGenerated > ago(90d)
 | where RemoteUrl in~(DomainList )
 | summarize count() by RemoteUrl
+// After Hunting visit https://github.com/jkerai1/SoftwareCertificates/tree/main/Bulk-IOC-CSVs, download the CSV and consider uploading to MDE to block all domains. Remove any results that are legitimate usage.

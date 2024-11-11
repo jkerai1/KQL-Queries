@@ -1,0 +1,7 @@
+DeviceEvents
+| where TimeGenerated > ago(90d)
+| where (ActionType == "SmartScreenUrlWarning" and AdditionalFields.Experience == "CustomBlockList") or (AdditionalFields.ResponseCategory == "CustomBlockList" and ActionType == "ExploitGuardNetworkProtectionBlocked")
+| where tostring(AdditionalFields.DisplayName) has "appName" or isnotempty(tostring(AdditionalFields.ApplicationName))
+| extend Application = iff(tostring(AdditionalFields.DisplayName) has "appName",replace_string((tostring(AdditionalFields.DisplayName)),@"appName=",""), (AdditionalFields.ApplicationName))
+| extend Application= replace('"', '', Application)
+| summarize BlockedURls = make_list(RemoteUrl) by Application

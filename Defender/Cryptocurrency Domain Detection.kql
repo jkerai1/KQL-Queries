@@ -9,4 +9,5 @@ let DomainList2 = CrytoDomains //// After Hunting visit https://github.com/jkera
 | project IndicatorValue;
 DeviceNetworkEvents
 | where RemoteUrl in~(DomainList) or RemoteUrl in~(DomainList2)
-| summarize count() by RemoteUrl 
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
+| summarize count() by RemoteUrl, VT_domain 

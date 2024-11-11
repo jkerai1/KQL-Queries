@@ -1,0 +1,5 @@
+DeviceNetworkEvents //Credit: Suraj Kumar. Modified from his query
+| where TimeGenerated > ago(90d)
+| extend AdditionalFields_query = tostring(parse_json(AdditionalFields)["query"]) 
+| where AdditionalFields_query endswith ".onion"
+| summarize count() by AdditionalFields_query, DeviceName

@@ -1,0 +1,9 @@
+let CountryCodes = externaldata (country: string,countryOrRegion:string) [@'https://raw.githubusercontent.com/lukes/ISO-3166-Countries-with-Regional-Codes/refs/heads/master/all/all.csv'] with (format=csv, ignoreFirstRecord=True);
+SigninLogs
+| where TimeGenerated > ago(90d)
+| where ResultType == 0
+| where isnotempty(countryOrRegion)
+| extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
+| join kind = leftouter CountryCodes on countryOrRegion
+| summarize count() by country, UserPrincipalName
+| where country <> "United Kingdom of Great Britain and Northern Ireland"

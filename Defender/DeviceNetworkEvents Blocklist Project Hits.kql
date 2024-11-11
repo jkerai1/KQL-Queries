@@ -26,4 +26,5 @@ let RansomBlockListProj = externaldata(type: string)[@"https://raw.githubusercon
 | project RemoteUrl;
 DeviceNetworkEvents
 | where RemoteUrl in~(PornBlockListProj) or RemoteUrl in~(TorrentBlockListProj) or RemoteUrl in~(PiracyBlockListProj) or RemoteUrl in~(PhishingBlockListProj) or RemoteUrl in~(MalwareBlockListProj) or RemoteUrl in~(RansomBlockListProj)
-| summarize count() by RemoteUrl 
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
+| summarize count() by RemoteUrl, VT_domain 

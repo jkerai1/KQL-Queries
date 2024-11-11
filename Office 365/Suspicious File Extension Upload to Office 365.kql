@@ -1,0 +1,6 @@
+let SusFileExtensions = externaldata(Extension: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/MDA/SuspiciousFileExtensions.txt"] with (format="txt", ignoreFirstRecord=False); 
+OfficeActivity
+| where TimeGenerated > ago(90d)
+| where Operation == "FileUploaded" or Operation == "FileDownloaded"
+| where SourceFileExtension has_any(SusFileExtensions)
+| summarize count() by SourceFileExtension, SourceFileName

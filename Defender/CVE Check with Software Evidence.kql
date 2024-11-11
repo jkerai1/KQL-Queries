@@ -1,0 +1,5 @@
+let CVEsToCheck = dynamic(["CVE-2023-21779","CVE-2021-44228","CVE-2024-21404"]);
+DeviceTvmSoftwareVulnerabilities
+| where CveId has_any(CVEsToCheck)
+| join kind=leftouter DeviceTvmSoftwareEvidenceBeta on DeviceId,SoftwareName
+| summarize count() by DeviceName, CveId, VulnerabilitySeverityLevel, SoftwareName, tostring(DiskPaths)

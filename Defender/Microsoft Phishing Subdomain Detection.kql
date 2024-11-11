@@ -1,0 +1,14 @@
+//This query detects phishing domains using Microsoft in subdomain
+//Excludes legitimate Microsoft domains
+let MSFT_Domains = externaldata(Url:string)[@"https://raw.githubusercontent.com/HotCakeX/MicrosoftDomains/main/Microsoft%20Domains.txt"] with (format="csv");
+let RemoteUrl = "microsoft-microsoft-microsofts[.]ecomademadeiras[.]com.br";
+DeviceNetworkEvents //print replace_string(RemoteUrl,'[.]','.') //to test
+| where isnotempty(RemoteUrl) //Clean Up, alternatively use a function ,parse_url did not help :(
+| extend Url = replace_string(RemoteUrl,'http://','')
+| extend Url = split(replace_string(Url,'https://',''),'/')[0]
+| extend Url = split(Url,':')[0] //remove Ports
+| extend Domain_split= split(Url,'.') //Split Out
+| where strcat(Domain_split[-2],'.',Domain_split[-1]) !in (MSFT_Domains) //Microsoft as domain, decent way to cut noise but not perfect will not catch function apps/sharepoints being abused
+| where Url has "microsoft"
+| summarize by tostring(Domain_split),tostring(Url), RemoteUrl
+| where Url <> "admin.microsoft.exchange.com" //supplement whitelist 

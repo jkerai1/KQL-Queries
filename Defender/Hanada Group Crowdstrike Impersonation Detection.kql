@@ -1,0 +1,4 @@
+//This query detects activity from Hanada group malware impersonating Crowdstrike updates
+//Looks for attempts to identify installed antiviruses and create specific files/folders
+DeviceProcessEvents
+| where ProcessCommandLine has_any("avastui.exe","avgui.exe","bdservicehost.exe","nswscsvc.exe","sophoshealth.exe","Carroll Carroll","champion.pif",@"564784\L","locatedflattrendsoperating") 

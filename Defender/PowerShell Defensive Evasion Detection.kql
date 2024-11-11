@@ -1,0 +1,4 @@
+//This query detects PowerShell commands using hidden windows or silent continue
+//Helps identify attempts to hide malicious activity from users
+DeviceProcessEvents
+| where ProcessCommandLine has_all("SilentlyContinue","Start-Process -WindowStyle Hidden") //can switch to has_any also 

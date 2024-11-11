@@ -1,0 +1,13 @@
+//This query checks DeviceNetworkEvents against known malicious Cloudflare workers from Netskope
+let NetskopeCloudflareWorkers = externaldata(Url: string)[@"https://raw.githubusercontent.com/netskopeoss/NetskopeThreatLabsIOCs/main/Phishing/CloudflareWorkers/IOCs/README.md"] with (format="csv", ignoreFirstRecord=True);
+let DomainList = NetskopeCloudflareWorkers
+| where Url <> "```text"
+| where Url <> "- **URLs**"
+| where Url <> "```"
+| extend domain = split(Url,'/')
+| extend domain = split(domain,'.')
+| extend url = strcat(domain[1],domain[2])
+| extend RemoteUrl = replace_string(url,'[.]','.')
+| project domain;
+DeviceNetworkEvents
+| where RemoteUrl in (DomainList) 

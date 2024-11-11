@@ -1,0 +1,9 @@
+//This query detects modifications to safeboot registry keys
+//Often used by attackers to prevent safeboot execution of security products
+DeviceRegistryEvents
+| project TimeGenerated, Customer, DeviceName, InitiatingProcessAccountName,
+InitiatingProcessCommandLine, InitiatingProcessFileName, InitiatingProcessAccountUpn, InitiatingProcessParentFileName, InitiatingProcessFolderPath, 
+ActionType, RegistryKey, RegistryValueName
+| where TimeGenerated > ago(7d)
+| where ActionType == "RegistryKeyCreated" or ActionType == "RegistryKeyModified"
+| where RegistryKey has @"SYSTEM\CurrentControlSet\Control\SafeBoot" 

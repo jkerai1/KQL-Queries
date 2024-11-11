@@ -1,3 +1,4 @@
+// This query looks for application names that may be unwanted
 let DisallowedProcessNames = externaldata (DisallowedProcess: string) [@'https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/Intune/DisallowedProcessList.txt'] with (format=txt);
 DeviceProcessEvents
 | where TimeGenerated > ago(90d)

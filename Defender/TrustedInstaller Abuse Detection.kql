@@ -1,5 +1,6 @@
 //This query detects attempts to become TrustedInstaller
-//Such attempts could allow bypass of ACLs for endpoint tampering
+//Such attempts could allow bypass of ACLs for endpoint tampering  . See https://www.youtube.com/watch?v=Vj1uh89v-Sc
 DeviceProcessEvents
 | where ProcessCommandLine contains "TrustedInstaller"
 | where ProcessCommandLine has_any("config", "sc", "sc.exe", "stop","del","binpath=") 
+| where ProcessCommandLine <> "SC config trustedinstaller start=auto"

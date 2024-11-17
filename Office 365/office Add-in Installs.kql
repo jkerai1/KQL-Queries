@@ -1,0 +1,5 @@
+//This Query looks for office Add-in Installs
+CloudAppEvents
+| where ActionType == @"AppInstalled" //or ActionType == @"Add application."
+| summarize count() by tostring(parse_json(RawEventData)["AddOnName"]), Application 
+

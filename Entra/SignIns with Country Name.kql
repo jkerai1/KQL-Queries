@@ -8,4 +8,4 @@ SigninLogs
 | extend VT_IP= iff(isnotempty(IPAddress),strcat(@"https://www.virustotal.com/gui/ip-address/",IPAddress),IPAddress)
 | summarize count() by country, UserPrincipalName, VT_IP
 | extend country = iif(country == "United Kingdom of Great Britain and Northern Ireland","United Kingdom",country)
-//| where country <> "United Kingdom of Great Britain and Northern Ireland"
+//| where country <> "United Kingdom"

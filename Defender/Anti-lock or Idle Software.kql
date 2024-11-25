@@ -1,6 +1,5 @@
 //This query looks for files or processes known to keep PC awake and bypass screen lock timeout
 let searchterms = dynamic(["MouseJiggle", "jiggle", "MoveMouse", "mousemove", "AutoClick", "Auto-Click", "Auto Click", "MadKey", "KeyPress", "Presser", "Wiggle", "TinyTask", "tinytask.exe", "Tiny Task", "Tiny-Task", "mouse click", "mouse-click", "mouseclick", "auto press", "autopress", "auto-press", "mouse macro", "mouse-macro", "sleep preventer","PowerToys.Awake.exe"]);
-//
 let FileEvents = DeviceFileEvents
 | where ActionType <> "FileDeleted"
 | where isnotempty(SHA256) 
@@ -9,13 +8,11 @@ let FileEvents = DeviceFileEvents
 | extend MOTW = replace_string(FileOriginUrl,'.','[.]')
 | extend MOTW_VT = iff(isnotempty(MOTW),strcat(@"https://www.virustotal.com/gui/url/",hash_sha256(FileOriginUrl)),MOTW)
 | project InitiatingProcessAccountUpn, DeviceName, FileName, FolderPath, SHA256, InitiatingProcessAccountName,MOTW_VT, SHA1; 
-//
 let ProcessEvents = DeviceProcessEvents
 | where ProcessCommandLine has_any (searchterms) or FileName has_any (searchterms)
 | where FileName !endswith ".pdf" and FileName !endswith ".gif" and FileName !has "msedge.exe" and FileName != "iexplore.exe" and FileName != "AcroRd32.exe"
 | where isnotempty(SHA256) 
 | project AccountUpn, DeviceName, FileName, FolderPath, SHA256, SHA1;
-//
 FileEvents
 | union ProcessEvents
 | extend account = iif(isnotempty(InitiatingProcessAccountUpn), account = InitiatingProcessAccountUpn, iif(isnotempty(AccountUpn),account = AccountUpn,account = InitiatingProcessAccountName))

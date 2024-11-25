@@ -1,8 +1,9 @@
+//This Query looks for the usage of chat websites. Once you have hunted considering downloading the list from https://github.com/jkerai1/SoftwareCertificates/blob/main/Bulk-IOC-CSVs/ChatSites.csv and uploading to Indicators in MDE
 let ChatIOCs = externaldata(type: string, IndicatorValue: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/ChatSites.csv"] with (format="csv", ignoreFirstRecord=True);
 let DomainList = ChatIOCs
 | project IndicatorValue;
 DeviceNetworkEvents
 | where TimeGenerated > ago(90d)
-| where RemoteUrl in~(DomainList )
+| where RemoteUrl in~(DomainList)
 | extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
 | summarize count() by RemoteUrl,VT_domain //,DeviceName, InitiatingProcessAccountUpn 

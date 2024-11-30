@@ -1,8 +1,0 @@
-//This query looks at the justification descriptions given for self approval per role. use this to check users are PIM'ing up for the right roles for the right tasks
-// Where users have repeated the same justification over and over could indicate that they may have tried to script their PIM elevations
-AuditLogs
-| where TimeGenerated > ago(90d)
-| where OperationName == "Add member to role requested (PIM activation)"
-| extend Role = tostring(TargetResources[0].displayName)
-| extend TicketNumber = tostring(AdditionalDetails[7].value)
-| summarize by ResultReason , tostring(parse_json((InitiatedBy.user)).userPrincipalName), Role, TicketNumber

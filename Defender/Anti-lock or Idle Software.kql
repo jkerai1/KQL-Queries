@@ -1,5 +1,5 @@
 //This query looks for files or processes known to keep PC awake and bypass screen lock timeout
-let searchterms = dynamic(["MouseJiggle", "jiggle", "MoveMouse", "mousemove", "AutoClick", "Auto-Click", "Auto Click", "MadKey", "KeyPress", "Presser", "Wiggle", "TinyTask", "tinytask.exe", "Tiny Task", "Tiny-Task", "mouse click", "mouse-click", "mouseclick", "auto press", "autopress", "auto-press", "mouse macro", "mouse-macro", "sleep preventer","PowerToys.Awake.exe"]);
+let searchterms = dynamic(["MouseJiggle", "jiggle", "MoveMouse", "mousemove", "AutoClick", "Auto-Click", "Auto Click", "MadKey", "KeyPress", "Presser", "Wiggle", "TinyTask", "tinytask.exe", "Tiny Task", "Tiny-Task", "mouse click", "mouse-click", "mouseclick", "auto press", "autopress", "auto-press", "mouse macro", "mouse-macro", "sleep preventer","PowerToys.Awake.exe","Amphetamine","caffeine"]);
 let FileEvents = DeviceFileEvents
 | where ActionType <> "FileDeleted"
 | where isnotempty(SHA256)

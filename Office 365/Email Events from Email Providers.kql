@@ -1,0 +1,6 @@
+//A list of all email provider domains (free, paid, blacklist etc). Some of these are probably not around anymore. I've combined a dozen lists from around the web. Current "major providers" should all be in here as of the date this is created.
+let EmailProviders = externaldata (EmailProvider: string) [@'https://gist.githubusercontent.com/ammarshah/f5c2624d767f91a7cbdc4e54db8dd0bf/raw/660fd949eba09c0b86574d9d3aa0f2137161fc7c/all_email_provider_domains.txt'] with (format=csv, ignoreFirstRecord=False);
+EmailEvents
+| where SenderFromDomain has_any (EmailProviders) or RecipientEmailAddress has_any(EmailProviders) 
+//| join kind=leftouter EmailAttachmentInfo on NetworkMessageId //left outer as we may not have any attachments
+//| summarize by SenderFromDomain, RecipientEmailAddress

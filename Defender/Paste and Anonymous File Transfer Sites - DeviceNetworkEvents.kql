@@ -6,4 +6,4 @@ DeviceNetworkEvents
 | where RemoteUrl in~(DomainList )
 | extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
 | summarize count() by RemoteUrl, VT_domain
-// After Hunting visit https://github.com/jkerai1/SoftwareCertificates/tree/main/Bulk-IOC-CSVs, download the CSV and consider uploading to MDE to block all domains. Remove any results that are legitimate usage.
+// After Hunting visit https://github.com/jkerai1/SoftwareCertificates/tree/main/Bulk-IOC-CSVs, download the CSV and consider uploading to MDE to block all domains. Delete any rows from the CSV that are legitimate usage. Some hits have been left in audit to prevent business impact.

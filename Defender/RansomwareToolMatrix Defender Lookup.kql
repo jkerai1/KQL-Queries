@@ -1,3 +1,4 @@
+//WORK IN PROGRESS
 //This query tries to match up device procs to the ransomware toolbox matrix. Note this query is not perfect due to how the ransomwaretoolbox csv is formatted and tools are displayed.. some work will need to be done. Also bear in mind attackers can rename tools/binaries. Ref https://github.com/BushidoUK/Ransomware-Tool-Matrix/tree/main/Tools
 let RansomwareToolMatrix = externaldata (Discovery: string, RMMTools:string, DefenseEvasion:string,CredentialTheft:string,Offsec:string,Networking:string,LOLBAS:string,Exfiltration:string) [@'https://raw.githubusercontent.com/BushidoUK/Ransomware-Tool-Matrix/refs/heads/main/Tools/AllTools.csv'] with (format=csv, ignoreFirstRecord =true);
 let DiscoveryTools = RansomwareToolMatrix // split individual columns if required

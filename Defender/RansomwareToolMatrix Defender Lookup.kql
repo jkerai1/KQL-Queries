@@ -16,7 +16,8 @@ let LOLBAS = RansomwareToolMatrix
 | project LOLBAS;
 let Exfiltration = RansomwareToolMatrix
 | project Exfiltration;
-DeviceProcessEvents
-| where TimeGenerated > ago(90d)
-| where ProcessCommandLine has_any(DiscoveryTools) or ProcessCommandLine has_any(RMMTools) or ProcessCommandLine has_any(DefenseEvasion) or ProcessCommandLine has_any(CredentialTheft) or ProcessCommandLine has_any(Offsec) or ProcessCommandLine has_any(Networking) or ProcessCommandLine has_any(LOLBAS) or ProcessCommandLine has_any(Exfiltration)
-| summarize make_list(DeviceName) by FileName, InitiatingProcessFileName,ProcessVersionInfoCompanyName //, ProcessCommandLine
+RansomwareToolMatrix
+//DeviceProcessEvents
+//| where TimeGenerated > ago(90d)
+//| where ProcessCommandLine has_any(DiscoveryTools) or ProcessCommandLine has_any(RMMTools) or ProcessCommandLine has_any(DefenseEvasion) or ProcessCommandLine has_any(CredentialTheft) or ProcessCommandLine has_any(Offsec) or ProcessCommandLine has_any(Networking) or ProcessCommandLine has_any(LOLBAS) or ProcessCommandLine has_any(Exfiltration)
+//| summarize make_list(DeviceName) by FileName, InitiatingProcessFileName,ProcessVersionInfoCompanyName //, ProcessCommandLine

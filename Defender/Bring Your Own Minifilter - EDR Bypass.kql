@@ -1,0 +1,17 @@
+//Detect Bring your own minifilter to bypass EDR.
+// by default windows can defend against this by preventing unsigned drivers however SYSTEM and stolen certificates would bypass. EDR vendors should use minifilters with a high altitude
+let Lookbackdays = 90d;
+let BringYourOwnMiniFilter_bceditProcs = DeviceProcessEvents
+| where TimeGenerated > ago(Lookbackdays)
+| where ProcessCommandLine contains "becedit.exe -set loadoptions DISABLE_INTEGRITY_CHECKS" or ProcessCommandLine contains "bcedit.exe -set TESTSIGNINGON";
+let BringYourOwnMiniFilter_ServiceCreation = DeviceProcessEvents
+| where TimeGenerated > ago(Lookbackdays)
+| where ProcessCommandLine contains @"sc create nullfilter type=filesys start=system binPath=C:\m.sys";
+let BringYourOwnMiniFilter_registryKeychange = DeviceRegistryEvents
+| where ActionType == "RegistryKeyCreated" or ActionType == "RegistryValueSet"
+| where TimeGenerated > ago(Lookbackdays)
+| where ActionType == "RegistryKeyCreated" or ActionType == "RegistryValueSet"
+| where (RegistryKey startswith @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\" and RegistryKey endswith @"\Instances\AltitudeAndFlags") or RegistryKey == @"HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows NT\Driver Signing";
+BringYourOwnMiniFilter_bceditProcs
+| union BringYourOwnMiniFilter_ServiceCreation
+| union BringYourOwnMiniFilter_registryKeychange

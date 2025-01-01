@@ -8,7 +8,6 @@ let BringYourOwnMiniFilter_ServiceCreation = DeviceProcessEvents
 | where TimeGenerated > ago(Lookbackdays)
 | where ProcessCommandLine contains @"sc create nullfilter type=filesys start=system binPath=C:\m.sys";
 let BringYourOwnMiniFilter_registryKeychange = DeviceRegistryEvents
-| where ActionType == "RegistryKeyCreated" or ActionType == "RegistryValueSet"
 | where TimeGenerated > ago(Lookbackdays)
 | where ActionType == "RegistryKeyCreated" or ActionType == "RegistryValueSet"
 | where (RegistryKey startswith @"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\" and RegistryKey endswith @"\Instances\AltitudeAndFlags") or RegistryKey == @"HKEY_CURRENT_USER\Software\Policies\Microsoft\Windows NT\Driver Signing";

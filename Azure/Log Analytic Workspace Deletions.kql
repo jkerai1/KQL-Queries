@@ -1,0 +1,4 @@
+//Deletion of a workspace could lead to a loss of logging - though the queryable workspace may be deleted meaning you'll have no way to run this query
+AzureActivity
+| where OperationNameValue == "MICROSOFT.OPERATIONALINSIGHTS/WORKSPACES/DELETE"
+| where ActivityStatusValue <> "Start" //so we only see successes or failures, feel free to remove

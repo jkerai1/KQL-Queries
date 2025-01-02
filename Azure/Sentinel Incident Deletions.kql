@@ -1,0 +1,4 @@
+//We may want to monitor if a sentinel incident has been deleted
+AzureActivity
+| where OperationNameValue == "MICROSOFT.SECURITYINSIGHTS/INCIDENTS/DELETE"
+| where ActivityStatusValue <> "Start" //so we only see successes or failures, feel free to remove

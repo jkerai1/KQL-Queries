@@ -1,0 +1,5 @@
+//Attempts to Delete Resource Locks on Azure Monitor Rules for a particular subscription and Resource group. KQL from https://www.linkedin.com/pulse/main-reason-you-shouldnt-exclude-break-glass-group-access-kerai-4dtve/
+AzureActivity
+| where OperationNameValue == "MICROSOFT.AUTHORIZATION/LOCKS/DELETE"
+| where _ResourceId startswith @"/<SUB ID>/resourcegroups/<RG NAME>/providers/microsoft.insights/scheduledqueryrules"
+| where ActivityStatusValue == "Start"

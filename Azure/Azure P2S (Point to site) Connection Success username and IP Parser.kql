@@ -1,5 +1,11 @@
 //This will parse out username and local IP for Azure VPN connection success logs. Diagnostic settings must be enabled
-AzureDiagnostics
+let VPNlog = AzureDiagnostics
 | where Message contains "Connection successful. Username=***"
 | parse-kv Message as (Username:string,IP:string) with (pair_delimiter=' ', kv_delimiter='=')
-| project Username,IP
+| extend RedactedUserName = tolower(replace_string(Username,"***",""))
+| project RedactedUserName,IP;
+VPNlog //join on noninteractivelog where app id is Azure Public VPN, change app ID if required https://learn.microsoft.com/en-us/azure/vpn-gateway/openvpn-azure-ad-tenant
+| join (AADNonInteractiveUserSignInLogs | where AppId == "41b23e61-6c1e-4545-b367-cd054e0ed4b4" | extend newname = trim_start(@"\w{3}",UserPrincipalName)) on $left.RedactedUserName==$right.newname
+| extend Country = parse_json(LocationDetails).countryOrRegion
+| extend VT = iff(isnotempty(IPAddress),strcat(@"https://www.virustotal.com/gui/ip-address/",IPAddress),IPAddress)
+| project UserPrincipalName, IP, IPAddress, Country, VT, ResultType 

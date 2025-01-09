@@ -1,0 +1,5 @@
+//This will parse out username and local IP for Azure VPN connection success logs. Diagnostic settings must be enabled
+AzureDiagnostics
+| where Message contains "Connection successful. Username=***"
+| parse-kv Message as (Username:string,IP:string) with (pair_delimiter=' ', kv_delimiter='=')
+| project Username,IP

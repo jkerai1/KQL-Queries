@@ -8,4 +8,5 @@ VPNlog //join on noninteractivelog where app id is Azure Public VPN, change app 
 | join (AADNonInteractiveUserSignInLogs | where AppId == "41b23e61-6c1e-4545-b367-cd054e0ed4b4" | extend newname = trim_start(@"\w{3}",UserPrincipalName)) on $left.RedactedUserName==$right.newname
 | extend Country = parse_json(LocationDetails).countryOrRegion
 | extend VT = iff(isnotempty(IPAddress),strcat(@"https://www.virustotal.com/gui/ip-address/",IPAddress),IPAddress)
+//| where IPAddress != "" //You may want to filter our your own VPN IP as we are working with non-interactive logs
 | project UserPrincipalName, IP, IPAddress, Country, VT, ResultType 

@@ -1,0 +1,10 @@
+//Query is from CISA Playbook https://www.cisa.gov/sites/default/files/2025-01/microsoft-expanded-cloud-logs-implementation-playbook-508c.pdf
+CloudAppEvents
+| where ActionType == 'MeetingParticipantDetail'
+| extend clientip = tostring(RawEventData.ClientIP)
+| extend meeting_id = tostring(RawEventData.MeetingDetailId)
+| extend join_time = todatetime(RawEventData.JoinTime)
+| extend leave_time = todatetime(RawEventData.LeaveTime)
+| extend min_duration = datetime_diff('minute',leave_time,join_time)
+| where clientip == 'x.x.x.x' //Replace with suspicious IP
+| project AccountDisplayName, meeting_id, join_time,leave_time,min_duration

@@ -1,0 +1,12 @@
+//Query is from CISA Playbook https://www.cisa.gov/sites/default/files/2025-01/microsoft-expanded-cloud-logs-implementation-playbook-508c.pdf
+//Get sessions associated with suspicious IP address
+let bad_sessions = materialize (
+AADSignInEventsBeta
+| where IPAddress == 'x.x.x.x’ //Replace with IP of interest
+| where isempty(SessionId) == false
+| distinct SessionId
+);
+//Get any mail accessed during suspicious sessions
+CloudAppEvents
+| where ActionType == 'MailItemsAccessed'
+| where RawEventData.SessionId has_any (bad_sessions)

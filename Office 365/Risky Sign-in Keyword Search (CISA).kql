@@ -1,0 +1,18 @@
+//Query is from CISA Playbook https://www.cisa.gov/sites/default/files/2025-01/microsoft-expanded-cloud-logs-implementation-playbook-508c.pdf
+let keywordsOfInterest=dynamic(["vpn","password","anyconnect","pfx","credential","credentials","work from home","cisco","palo alto","virtualdesktop","key","secret","confidential"]);
+AADSignInEventsBeta
+| where RiskLevelDuringSignIn in ("50","100")
+| project RiskySignInTime=Timestamp, AccountUpn, RiskLevelDuringSignIn,
+SignInIPAddress=IPAddress
+| join kind=inner(
+CloudAppEvents
+| where ActionType in("SearchQueryInitiatedSharePoint","SearchQueryInitiatedExchange")
+| extend QueryText=tostring(RawEventData.QueryText)
+| extend Workload=tostring(RawEventData.Workload)
+| extend UserId=tostring(RawEventData.UserId)
+| where QueryText has_any (keywordsOfInterest)
+| project SearchTime=Timestamp, UserId, Workload, QueryText, IPAddress
+) on $left.AccountUpn==$right.UserId
+| extend ['Time Between Risky Sign in and search']=datetime_diff('minute',SearchTime,RiskySignInTime)
+| where ['Time Between Risky Sign in and search'] between (-30 .. 30)
+| project RiskySignInTime, SearchTime, AccountUpn, Workload, QueryText, ['Time Between Risky Sign in and search'], SignInIPAddress, SearchIPAddress=IPAddress

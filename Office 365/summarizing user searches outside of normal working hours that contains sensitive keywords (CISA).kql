@@ -1,0 +1,13 @@
+//Query is from CISA Playbook https://www.cisa.gov/sites/default/files/2025-01/microsoft-expanded-cloud-logs-implementation-playbook-508c.pdf
+let keywords = dynamic(['secret','password','vpn']); //replace with orgspecific keywords or remove
+let utc_working_hours = range(2,13); //replace with org specific working hours
+CloudAppEvents
+| extend client_ip = tostring(RawEventData.ClientIP)
+| extend query_text = tostring(RawEventData.QueryText)
+| where ActionType == "SearchQueryInitiatedExchange" or ActionType ==
+"SearchQueryInitiatedSharePoint"
+| where not (datetime_part("Hour",Timestamp) in (utc_working_hours))
+| where query_text has_any (keywords)
+| take 100
+| summarize search_number=count(), make_set(query_text), make_set(client_ip)
+by AccountDisplayName

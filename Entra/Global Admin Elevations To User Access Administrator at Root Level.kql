@@ -1,0 +1,4 @@
+AuditLogs
+| where OperationName == "User has elevated their access to User Access Administrator for their Azure Resources"
+| extend User = tostring(InitiatedBy.user.userPrincipalName)
+| extend IP = tostring(InitiatedBy.user.ipAddress)

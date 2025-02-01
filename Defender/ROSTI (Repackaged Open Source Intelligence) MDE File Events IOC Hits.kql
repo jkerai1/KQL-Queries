@@ -1,0 +1,12 @@
+//Looks for SHA256 hits from the ROSTI Feed
+//Source: https://rosti.bin.re/feeds
+let RostiBinIOCs = externaldata(UniqName: string, Value: string)[@"https://sduixpgwciwivgpuisyf.supabase.co/storage/v1/object/public/bulk-exports/checkpoint-sha256.txt"] with (format="csv", ignoreFirstRecord=True);
+let SHA256List = RostiBinIOCs
+| project Value;
+DeviceFileEvents
+| where TimeGenerated > ago(90d)
+| where SHA256 in(SHA256List) 
+| extend VT_domain = iff(isnotempty(SHA256),strcat(@"https://www.virustotal.com/gui/file/",SHA256),SHA256)
+| summarize count() by SHA256, VT_domain,DeviceName
+| where SHA256 <> "bf861f5bd384707e23148716240822208ceeba50c132fb172b784a6575e5e555" //OneDrive Updater FalsePositive
+| where SHA256 <> "6bdd51dfa47d1a960459019a960950d3415f0f276a740017301735b858019728" //Cisco Collab FP

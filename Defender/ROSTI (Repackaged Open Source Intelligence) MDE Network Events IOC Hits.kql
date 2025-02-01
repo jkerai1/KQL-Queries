@@ -1,4 +1,5 @@
 //Looks for Network Traffic hits from the ROSTI Feed
+//Source: https://rosti.bin.re/feeds
 let RostiBinIOCs = externaldata(type: string, IndicatorValue: string)[@"https://sduixpgwciwivgpuisyf.supabase.co/storage/v1/object/public/bulk-exports/mde-all.csv"] with (format="csv", ignoreFirstRecord=True);
 let DomainList = RostiBinIOCs
 | where type == "DomainName" or type == "Url"
@@ -8,4 +9,3 @@ DeviceNetworkEvents
 | where RemoteUrl in~(DomainList )
 | extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
 | summarize count() by RemoteUrl, VT_domain
-//Source: https://rosti.bin.re/feeds

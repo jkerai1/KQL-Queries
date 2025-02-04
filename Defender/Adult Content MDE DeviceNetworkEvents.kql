@@ -1,0 +1,20 @@
+//Use Web Content Filtering in MDE to block Adult Content https://learn.microsoft.com/en-us/defender-endpoint/web-content-filtering
+let Adult0 = externaldata(type: string)[@"https://raw.githubusercontent.com/4skinSkywalker/Anti-Porn-HOSTS-File/master/HOSTS.txt"] with (format="csv", ignoreFirstRecord=False);
+let Adult1 = externaldata(type: string,type2:string, type3:string)[@"https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts"] with (format="csv", ignoreFirstRecord=False);
+let Adult2 = externaldata(type: string)[@"https://raw.githubusercontent.com/columndeeply/hosts/main/hosts01"] with (format="csv", ignoreFirstRecord=False);
+let Adult3 = externaldata(type: string)[@"https://raw.githubusercontent.com/columndeeply/hosts/main/hosts02"] with (format="csv", ignoreFirstRecord=False);
+let Adult4 = externaldata(type: string)[@"https://raw.githubusercontent.com/columndeeply/hosts/main/hosts03"] with (format="csv", ignoreFirstRecord=False);
+let Adult5 = externaldata(type: string)[@"https://raw.githubusercontent.com/columndeeply/hosts/main/hosts04"] with (format="csv", ignoreFirstRecord=False);
+let Adult6 = externaldata(type: string)[@"https://raw.githubusercontent.com/Bon-Appetit/porn-domains/master/block.txt"] with (format="csv", ignoreFirstRecord=False);
+let Adult7 = externaldata(type: string)[@"https://gist.githubusercontent.com/sibaram-sahu/5248d7600a24284f580219b29d178c49/raw/b35fdaf7a8685b536da0022102e125df70c50eb1/pornsite-list.txt"] with (format="csv", ignoreFirstRecord=False);
+let AdultDomains =Adult7
+//| union Adult0, Adult1,Adult2,Adult3,Adult4,Adult5,Adult6 //Substitute in Lists as lists are too large to include all in one query
+| extend RemoteUrl = replace_string(replace_string(replace_string(replace_string(replace_string(replace_string(replace_string(replace_string(type, "127.0.0.1 ",""),"0.0.0.0    ",""),"    127.0.0.1	      ",""),"	  127.0.0.1       ",""),"https://",""),"http://",""),"www.","")," ","")
+| where RemoteUrl <> "	"
+| where RemoteUrl <> "	"
+| where RemoteUrl <> "    #"
+| where RemoteUrl <> "    # get rid of this shit"
+|distinct RemoteUrl;
+DeviceNetworkEvents
+| join AdultDomains on RemoteUrl 
+| summarize count() by RemoteUrl

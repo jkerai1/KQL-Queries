@@ -1,0 +1,2 @@
+CloudAppEvents
+| where ActionType == @"DeleteCustomDetection" or  ActionType == @"CreateCustomDetection" or ActionType == @"EditCustomDetection"

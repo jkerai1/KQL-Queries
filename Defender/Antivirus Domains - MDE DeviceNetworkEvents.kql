@@ -1,0 +1,9 @@
+//Additional AV Providers can turn off Defender. Ensure that Defender is running in "EDR in block mode". For brevity, softwarepackers have been scoped instead of each individual AV URL. These should be safe to unsanction as users/admins should be grabbing applications from official sources
+let AntivirusIOCs = externaldata(type: string, IndicatorValue: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/Antivirus%20IOCs.csv"] with (format="csv", ignoreFirstRecord=True);
+let DomainList = AntivirusIOCs
+| project IndicatorValue;
+DeviceNetworkEvents
+| where TimeGenerated > ago(90d)
+| where RemoteUrl in~(DomainList )
+| extend VT_domain = iff(isnotempty(RemoteUrl),strcat(@"https://www.virustotal.com/gui/domain/",RemoteUrl),RemoteUrl)
+| summarize count() by RemoteUrl, InitiatingProcessFileName, InitiatingProcessAccountUpn

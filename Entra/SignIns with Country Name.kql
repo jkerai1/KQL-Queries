@@ -3,9 +3,8 @@ SigninLogs
 | where TimeGenerated > ago(90d)
 | where ResultType == 0
 | extend countryOrRegion = tostring(LocationDetails.countryOrRegion)
-| where isnotempty(countryOrRegion)
 | join kind = leftouter CountryCodes on countryOrRegion
+| where isnotempty(countryOrRegion)
 | extend VT_IP= iff(isnotempty(IPAddress),strcat(@"https://www.virustotal.com/gui/ip-address/",IPAddress),IPAddress)
 | summarize count() by country, UserPrincipalName, VT_IP
 | extend country = iif(country == "United Kingdom of Great Britain and Northern Ireland","United Kingdom",country)
-//| where country <> "United Kingdom"

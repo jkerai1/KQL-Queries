@@ -1,0 +1,41 @@
+// Custom detection for the creation of spoof directories with Unicode characters
+//Source: https://rogierdijkman.medium.com/detecting-edr-bypass-using-path-masquerading-fcfeb7339751
+  let unicodeWhitespace = dynamic([
+      "\u2000"
+      , "\u2001"
+      , "\u2002"
+      , "\u2003"
+      , "\u2004"
+      , "\u2005"
+      , "\u2006"
+      , "\u2007"
+      , "\u2008"
+      , "\u2009"
+      , "\u200A"
+  ]);
+  let suspiciousProcesses = dynamic([
+      "powershell.exe"
+      , "cmd.exe"
+      , "mshta.exe"
+      , "wscript.exe"
+      , "cscript.exe"
+  ]);
+  DeviceFileEvents
+  //| where Timestamp >= ago(1h)
+  // Exclude system-level processes
+  | where InitiatingProcessAccountName != "SYSTEM"
+  // Filter for known suspicious processes
+  | where InitiatingProcessFileName in (suspiciousProcesses)
+  | where FolderPath has_any (unicodeWhitespace)
+  | extend AccountDomain = tostring(split(InitiatingProcessAccountName, "\\")[0]), AccountName = tostring(split(InitiatingProcessAccountName, "\\")[1])
+  // Exclude NT AUTHORITY domain
+  | where AccountDomain != "NT AUTHORITY"
+  | project 
+    Timestamp
+    , DeviceName
+    , InitiatingProcessAccountName
+    , InitiatingProcessAccountUpn
+    , FolderPath
+    , InitiatingProcessFileName
+    , InitiatingProcessCommandLine
+  | order by Timestamp

@@ -3,7 +3,7 @@ let UngoverenedAI_IOCs = externaldata(type: string, IndicatorValue: string)[@"ht
 let DomainList = UngoverenedAI_IOCs
 | project IndicatorValue;
 DeviceNetworkEvents
-| where TimeGenerated > ago(90d)
+| where TimeGenerated > ago(90d) //| where Timestamp > ago(30d)  - if using Advanced Huntng use Timestamp instead of TimeGenerated
 | where RemoteUrl in~(DomainList )
 | summarize count() by RemoteUrl
 // After Hunting visit https://github.com/jkerai1/SoftwareCertificates/tree/main/Bulk-IOC-CSVs, download the CSV and consider uploading to MDE to block all domains. Remove any results that are legitimate usage.

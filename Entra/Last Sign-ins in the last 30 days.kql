@@ -1,0 +1,5 @@
+//Note this will not work if the user has no sign-in at ALL in the last 30 days. For reporting on last sign-ins for all users regardless of timewindow I would check out https://o365reports.com/2023/06/21/microsoft-365-inactive-user-report-ms-graph-powershell/
+SigninLogs
+| where TimeGenerated > ago(30d)
+| where ResultType == "0" //Successes only
+| summarize arg_max(TimeGenerated,UserPrincipalName) by UserPrincipalName //Get Latest Time i.e. Maximize TimeGenerated

@@ -14,3 +14,4 @@ DeviceFileEvents
 //| where ExtensionID != "kbfnbcaeplbcioakkpcpgfkobkghlhen" //Grammarly
 //| where RiskyExtension == "Yes"
 | join kind=leftouter RiskyExtensionsWithNames on ExtensionID //if name is present in the risky list present it
+| project-away ExtensionID1,ExtensionURL1

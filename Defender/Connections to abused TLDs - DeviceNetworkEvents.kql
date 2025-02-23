@@ -29,3 +29,4 @@ DeviceNetworkEvents
 | extend Host_0_HostName = DeviceName
 | extend Account_0_Name = InitiatingProcessAccountUpn
 | extend URL_0_Url = RemoteUrl
+//https://github.com/jkerai1/TLD-TABL-Block

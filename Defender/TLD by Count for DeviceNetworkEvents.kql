@@ -10,7 +10,6 @@ DeviceNetworkEvents
 | extend tld = tostring(split(RemoteUrl, ".")[-1])
 | extend VT_Link = strcat("https://www.virustotal.com/gui/domain/",RemoteUrl)
 | extend Abuse_Link = strcat("https://www.abuseipdb.com/check/",RemoteIP)
-//Validate parsed domain by checking TLD against TLDs from threat feed and drop domains where there is no chance of a match
 | project-away slashindex
 | project-reorder TimeGenerated, tld, VT_Link, Abuse_Link, RemoteUrl, InitiatingProcessAccountUpn, DeviceName
 | extend Host_0_HostName = DeviceName

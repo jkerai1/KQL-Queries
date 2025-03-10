@@ -1,0 +1,5 @@
+DeviceTvmSoftwareInventory
+| where SoftwareName != ""
+| where EndOfSupportStatus in("EOS Version","Upcoming EOS Version")
+| join kind=leftouter DeviceTvmSoftwareEvidenceBeta on DeviceId,SoftwareName
+| summarize EarliestEndOfSupport=min(EndOfSupportDate) by SoftwareName,DeviceName,tostring(DiskPaths)

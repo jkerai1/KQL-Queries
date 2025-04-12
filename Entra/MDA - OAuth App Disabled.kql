@@ -1,0 +1,6 @@
+AuditLogs
+| where Identity == "MAPG" //My Guess is this is Microsoft Application Goverance 
+| where OperationName == "Update service principal"
+| where Category == "ApplicationManagement"
+| where parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[0].newValue))[0] == false and parse_json(tostring(TargetResources[0].modifiedProperties))[0].displayName == "AccountEnabled"
+//In the background MDA Disables the SP preventing application Permission and disables the app for user sign-in preventing delegated permissions

@@ -1,4 +1,4 @@
-let WebsiteRedirectors = externaldata(type: string, IndicatorValue: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/WebisteRedirectors.csv"] with (format="csv", ignoreFirstRecord=True);
+let WebsiteRedirectors = externaldata(type: string, IndicatorValue: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/WebsiteRedirectors.csv"] with (format="csv", ignoreFirstRecord=True);
 let DomainList = WebsiteRedirectors
 | project IndicatorValue;
 DeviceNetworkEvents

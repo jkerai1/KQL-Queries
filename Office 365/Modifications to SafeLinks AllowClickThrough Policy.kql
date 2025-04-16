@@ -1,0 +1,4 @@
+OfficeActivity
+| where TimeGenerated > ago(90d)
+| where Operation == "Set-SafeLinksPolicy"
+| where parse_json(Parameters)[13].Value == "True" and parse_json(Parameters)[13].Name == "AllowClickThrough"

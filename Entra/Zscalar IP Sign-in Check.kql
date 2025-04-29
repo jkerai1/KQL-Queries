@@ -1,11 +1,12 @@
 //Experimental, query needs optimization.
 let Zscaler = externaldata (prefixes: dynamic) [@'https://config.zscaler.com/api/zscaler.net/future/json'] with (format=json, ignoreFirstRecord=True)
-| mv-expand prefixes
-| summarize by ZscalerIP= tostring(prefixes)
+//| mv-expand prefixes
+//| summarize by ZscalerIP= tostring(prefixes)
 | extend Dummy = 1;
 SigninLogs
 | where TimeGenerated > ago(90d)
 | where ResultType == 0
 | extend Dummy = 1
-| join Zscaler on Dummy //map every sign-in to all zscaler Ips
-| where ipv4_is_match(IPAddress, ZscalerIP)
+| join kind=fullouter Zscaler on Dummy //map every sign-in to all zscaler Ips
+| where ipv4_is_in_any_range(IPAddress, prefixes)
+| project-away prefixes

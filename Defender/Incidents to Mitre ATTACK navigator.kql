@@ -1,4 +1,5 @@
 //This query takes incidents from Defender, checks MITRE technique and then creates attack navigator format for upload to https://mitre-attack.github.io/attack-navigator/
+//Query Based on work from https://gokhansobay.medium.com/how-can-you-quickly-review-your-defender-rules-mitre-coverage-with-the-att-ck-navigator-map-6dbc84e73b63
 let dynamicAttributes_first = dynamic({
     "name": "layer",
     "versions": {

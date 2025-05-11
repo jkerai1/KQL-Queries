@@ -1,0 +1,5 @@
+// This query looks for modifications to ApplicationManagementPolicy which could be someone attempting to bypass an app management policy that blocks client secrets being used for an app registration
+AuditLogs
+| where OperationName == "Add policy"
+| where TargetResources[0].displayName == "ApplicationManagementPolicy"
+//Ref https://learn.microsoft.com/en-us/graph/api/tenantappmanagementpolicy-update?view=graph-rest-1.0&tabs=http

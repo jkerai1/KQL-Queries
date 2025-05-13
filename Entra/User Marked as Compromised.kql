@@ -1,0 +1,9 @@
+AuditLogs
+| where OperationName == "ConfirmAccountCompromised"
+| extend IntiatedBy = parse_json(tostring(InitiatedBy.user)).userPrincipalName //Person who did the confirm Compromise. It may be an app
+| extend ServicePrincipalId = tostring(parse_json(tostring(InitiatedBy.app)).appId)
+| extend UserId = tostring(TargetResources[0].id) //Extract Target User Id
+| join kind=leftouter (SigninLogs|where UserPrincipalName contains "@" |summarize by UserPrincipalName,UserId) on UserId //If UPN is missing use sign-in logs to gather it
+| join kind=leftouter (AADServicePrincipalSignInLogs| summarize by ServicePrincipalId, ServicePrincipalName) on ServicePrincipalId //If an SP marked compromised use this to gather app display name
+| join kind=leftouter (AADManagedIdentitySignInLogs| summarize by ServicePrincipalId, ServicePrincipalName) on ServicePrincipalId //IF MI marked compromised
+| project-away UserId1, UserId, Type, AADOperationType, Level, DurationMs, ResultSignature, OperationVersion, Resource, ResourceGroup

@@ -1,0 +1,23 @@
+//Set threshold to alert on uploads above this size in GB
+let SizeThreshold = 5;
+let CountThreshold = 1000;
+let FileUploads = CloudAppEvents
+//| where TimeGenerated > ago(90d)
+| where ActionType == "FileUploadedToCloud"
+| extend Domain = tostring(RawEventData.TargetDomain)
+//| where Domain == "wetransfer.com" //example
+| extend DeviceName = RawEventData.DeviceName
+| extend File = tostring(RawEventData.ObjectId)
+| extend FileSize_Bytes = tostring(RawEventData.FileSize)
+| extend SensitiveInfoTypes = parse_json(tostring(RawEventData.SensitiveInfoTypeData))
+| extend Application = tostring(RawEventData.Application)
+| extend FileType = tostring(RawEventData.FileType)
+| extend Sha256 = tostring(RawEventData.Sha256)
+| project TimeGenerated, ActionType, AccountDisplayName, DeviceName, File, FileSize_Bytes, FileType, IPAddress, ISP, CountryCode,  Domain, Application, Sha256, AccountId;
+//Get large volume of file uploads > 1gb
+FileUploads
+| summarize TotalSize = format_bytes(sum(toint(FileSize_Bytes)),2,"GB"), FileUploadCount = count() by AccountDisplayName, AccountId, Domain
+| join kind=rightouter FileUploads on AccountId
+| where (toint(substring(TotalSize, 0, 1)) > SizeThreshold) or (FileUploadCount > CountThreshold)
+| project-away AccountDisplayName1, AccountId1, Domain1
+

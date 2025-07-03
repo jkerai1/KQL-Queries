@@ -1,0 +1,4 @@
+SigninLogs
+| where TimeGenerated > ago(90d)
+| where AppDisplayName == "Azure Active Directory PowerShell"
+| summarize count() by UserPrincipalName

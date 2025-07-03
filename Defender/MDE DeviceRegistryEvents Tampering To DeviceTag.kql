@@ -1,0 +1,6 @@
+//Modifications to this registry key could move a device into a different MDE Device Group
+DeviceRegistryEvents
+| where TimeGenerated > ago(90d)
+| where RegistryKey == "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Advanced Threat Protection\\DeviceTagging"
+| where RegistryValueName == "Group"
+| where InitiatingProcessAccountDomain <> "nt authority" and InitiatingProcessAccountName <> "system"

@@ -3,5 +3,5 @@ AADSignInEventsBeta
 | where DeviceTrustType contains @"joined" //Corporate devices only for example, Adjust accordingly
 | extend dayofWeek = dayofweek(TimeGenerated)/1d // Monday is 1, Tuesday is 2 etc.
 | where dayofWeek == 2 or dayofWeek == 3 //Tuesday and wednesday are mandatory days for example
-| where not (ipv4_is_in_range(IPAddress, "10.0.0.0/8") or ipv4_is_in_range(IPAddress, "1.1.1.1/8") ) //add office Ranges.
-| summarize by IPAddress, AccountUpn, City
+| where not (ipv4_is_in_range(IPAddress, "10.0.0.0/8") or ipv4_is_in_range(IPAddress, "1.1.1.1/8") ) //add office Ranges to exclude them from the results
+| summarize count() by IPAddress, AccountUpn, City

@@ -1,0 +1,6 @@
+AuditLogs
+| where OperationName == "Consent to application"
+| where parse_json(tostring(TargetResources[0].modifiedProperties))[5].displayName == "ConsentAction.Reason"
+| where parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[5].newValue)) contains "Risky application detected"
+//Risk Based Step up flow to Admin Flow. This will log even if the permissions being requested are already admin consentable.
+//Ref: https://www.youtube.com/watch?v=JBt-sB0qXqk&pp=ygUPbWVyaWxsIGZlcm5hbmRv

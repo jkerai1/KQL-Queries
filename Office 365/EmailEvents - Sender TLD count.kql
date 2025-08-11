@@ -1,0 +1,7 @@
+EmailEvents
+| extend FQDN = trim_end("(:|\\?).*", tostring(split(trim_start('http(.|)://', SenderFromDomain), "/")[0]))
+//| project-reorder FQDN, UrlDomain
+| where FQDN contains "."  // exclude singular hostnames used in local name resolution
+| where DeliveryAction == "Delivered"
+| extend TLD = tostring(split(FQDN, ".")[-1])
+| summarize count() by TLD, EmailDirection

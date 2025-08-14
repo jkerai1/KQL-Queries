@@ -1,0 +1,6 @@
+AuditLogs
+| where not(OperationName has "group")
+| where not(OperationName == "Set directory feature on tenant")
+| where InitiatedBy has_all ( "Office 365 Exchange Online","user")
+| where InitiatedBy.user.displayName == "Office 365 Exchange Online"
+//Ref: https://i.blackhat.com/BH-USA-25/Presentations/US-25-Mollema-Advanced-AD-to-Entra-ID-lateral-movement-techniques-Wednesday.pdf

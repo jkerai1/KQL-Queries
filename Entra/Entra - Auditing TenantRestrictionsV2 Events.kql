@@ -11,3 +11,4 @@ SigninLogs
 //The error the user sees: A tenant restrictions policy added to this request by a device or network administrator does not allow access to '{tenant}'.
 // Use HomeTenantId and something like AADInternals to Assert which tenant was being signed into.
 //Also note you get some error code for personal microsoft accounts (MSA), theres no way to differentiate from the logs because An MSA's basically live its own tenant
+//To find out which user intiated it you can try looking for the "https://login.microsoftonline.com/common/federation/oauth2msa" URL.

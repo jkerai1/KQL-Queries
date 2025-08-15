@@ -1,0 +1,13 @@
+//This query looks for when a user tries to sign-in into a tenant that is not approved by a Tenant's Tenant Restriction Policy. There will be a log in Tenant A and Tenant B.
+// The Log in Tenant A (where the user was restricted in) will log in Entra as {PII removed - Tenant Restrictions}, in the target tenant the name will not be redacted (because the user involved is a member of that tenant)
+//Hence we can use the {PII Removed} filter to differentiate the directionality of the block.
+//Note for tenant restrictions to take place a policy must be pushed to the device either via GPO, MDM or GSA.
+// Post: https://www.linkedin.com/posts/jay-kerai-cyber_entra-mdm-b2b-activity-7359901262860984321-U45y
+SigninLogs
+| where ResultType <> "0"
+//| where Identity == "{PII removed - Tenant Restrictions}" // You won't see the target account in the logs if to another org
+//If its another org hitting your org then you will see the UPN. So you can use the PII filter to exclude when its your users hitting outbound vs another org's tenant restriction policy
+| where Status.errorCode == 5000211 //Both Tenants get the same Error code!!!!
+//The error the user sees: A tenant restrictions policy added to this request by a device or network administrator does not allow access to '{tenant}'.
+// Use HomeTenantId and something like AADInternals to Assert which tenant was being signed into.
+//Also note you get some error code for personal microsoft accounts (MSA), theres no way to differentiate from the logs because An MSA's basically live its own tenant

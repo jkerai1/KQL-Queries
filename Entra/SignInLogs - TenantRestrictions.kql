@@ -1,7 +1,0 @@
-SigninLogs
-//| where ResultType == 0
-//| where ResultSignature == "FAILURE"
-//| where CrossTenantAccessType == "passthrough"
-| where IsTenantRestricted == true or Status.failureReason == "The resource tenant\'s cross-tenant access policy does not allow this user to access this tenant."
-//use something Like AADInternalsOsint to look up ResourceTenantID from AppOwnerTenantId field.
-//This query covers B2b and local accounts in another tenant

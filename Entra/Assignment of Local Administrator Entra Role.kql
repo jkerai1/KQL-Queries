@@ -1,0 +1,6 @@
+//Assignment of Local Administrator Entra Role /Device administrator Role
+// Best Practice is to assign a LAPS Reader role (Custom) instead and assign to an admin unit
+AuditLogs
+| where ActivityDisplayName == "Add member to role"
+| where parse_json(tostring(TargetResources[0].modifiedProperties))[1].newValue contains "Device Local Administrator" or (parse_json(tostring(TargetResources[0].modifiedProperties))[3].newValue) == "\"DeviceAdministrators\""
+//| where parse_json(tostring(TargetResources[1].administrativeUnits)) == "[]" //if you want to Include only tenant wide assignments

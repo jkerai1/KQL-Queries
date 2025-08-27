@@ -1,0 +1,7 @@
+//Ref:https://www.hexacorn.com/blog/2019/02/15/beyond-good-ol-run-key-part-103/
+DeviceRegistryEvents
+| where TimeGenerated > ago(90d)
+| where ActionType == "RegistryValueSet"
+| where RegistryKey contains @"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Event Viewer" // use of @ notation so string is interpreted literally
+| where RegistryValueName contains "Redirection" or RegistryValueData == 1 //ConfirmUrl of 1 to avoid prompt, redirection program to set the persistence method
+//this method was brought to my attention by https://www.linkedin.com/posts/nasreddinebencherchali_windows-persistence-activity-7032415514660376576-7YyT/

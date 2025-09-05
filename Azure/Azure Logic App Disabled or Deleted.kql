@@ -1,3 +1,4 @@
 AzureActivity
 | where OperationNameValue == "MICROSOFT.LOGIC/WORKFLOWS/DISABLE/ACTION" or OperationName == "MICROSOFT.LOGIC/WORKFLOWS/DELETE"
 | where ActivityStatusValue startswith "Succe" or ActivityStatusValue startswith "accept" // Comment out if you want to look for attempts
+//Azure Activity must be enabled https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics

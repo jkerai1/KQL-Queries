@@ -1,0 +1,3 @@
+AzureActivity
+| where OperationNameValue == "StopWebSite" or OperationName == "DeleteWebSite" or OperationNameValue == "MICROSOFT.WEB/SITES/DELETE"
+| where ActivityStatusValue startswith "Succe" or ActivityStatusValue startswith "accept"

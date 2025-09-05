@@ -1,0 +1,3 @@
+AzureActivity
+| where OperationNameValue == "MICROSOFT.COMMUNICATION/COMMUNICATIONSERVICES/DELETE"
+| where ActivityStatusValue startswith "Succe" or ActivityStatusValue startswith "accept" // Comment out if you want to look for attempts

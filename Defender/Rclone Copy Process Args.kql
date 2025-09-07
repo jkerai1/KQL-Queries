@@ -1,10 +1,10 @@
 //Any use of rclone should be heavily scrutinzed in the environment. It is a common binary to see attackers use to get data out
 // Definitely block the usage of rclone as a binary and as a cloud app (by denying consent)
 //Make sure to block rclone.org and https://github.com/rclone/rclone
-let rclone_args = pack_array('copy','ignore-existing','auto-confirm'); //not including binary name in case attacker renames binary.
+let rclone_args = pack_array('copy','ignore-existing','auto-confirm'); //not including binary name in here here in case attacker renames binary.
 DeviceProcessEvents 
 | where TimeGenerated >ago(90d)
-| where ProcessCommandLine has_all(rclone_args)
+| where ProcessCommandLine has_all(rclone_args) or ProcessCommandLine contains "rclone.exe copy" or FileName == "rclone.exe" //cover rename, args and standard use of binary
 
 //Flags for copy command (not including global flags such as auto-confirm):
      /// --absolute                Put a leading / in front of path names

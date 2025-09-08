@@ -1,0 +1,7 @@
+SigninLogs
+| where TimeGenerated > ago(90d)
+| where ResultType == "0" //Successes only
+| where isempty(DeviceDetail.deviceId) //ignore already joined/registered devices
+| where IncomingTokenType == "primaryRefreshToken" //Edge seems to cache a PRT
+| where DeviceDetail.browser startswith "Edge " //See if user signed into browser on non joined/registered device
+| summarize count() by UserPrincipalName //BYOD Edge sign-in is perfect use-case for Edge for Business (and MDA session proxy + MAM)

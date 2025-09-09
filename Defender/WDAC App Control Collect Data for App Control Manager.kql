@@ -1,0 +1,5 @@
+DeviceEvents
+| where ActionType startswith "AppControlCodeIntegrity"
+   or ActionType startswith "AppControlCIScriptBlocked"
+   or ActionType startswith "AppControlCIScriptAudited"
+//See https://github.com/HotCakeX/Harden-Windows-Security/wiki/How-to-Use-Microsoft-Defender-for-Endpoint-Advanced-Hunting-With-WDAC-App-Control#collecting-the-data-from-mde-advanced-hunting

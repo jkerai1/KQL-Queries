@@ -1,0 +1,3 @@
+AADCustomSecurityAttributeAuditLogs
+| where OperationName == "Add custom security attribute definition in an attribute set"
+//Custom Atribute Diagnostic log must be enabled. this can only be done by the Attribute Log Administrator Role (global admin is NOT able to perform this)

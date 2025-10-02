@@ -1,0 +1,3 @@
+CloudAppEvents
+| where ActionType startswith "FileDownloaded" //download or download from browser
+| summarize count() by CountryCode//, tostring(IPTags)

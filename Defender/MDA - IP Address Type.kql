@@ -1,0 +1,4 @@
+CloudAppEvents
+| where isnotempty(IPAddress)
+| summarize count() by IPCategory
+| extend IPCategory = iff(isempty(IPCategory),IPCategory="Normal",IPCategory)

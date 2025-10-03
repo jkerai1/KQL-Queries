@@ -1,4 +1,4 @@
-//Use Web Content Filtering in MDE to block Adult Content https://learn.microsoft.com/en-us/defender-endpoint/web-content-filtering
+//Use Web Content Filtering in MDE to block Adult Content https://learn.microsoft.com/en-us/defender-endpoint/web-content-filtering?WT.mc_id=MVP_473477
 let Adult0 = externaldata(type: string)[@"https://raw.githubusercontent.com/4skinSkywalker/Anti-Porn-HOSTS-File/master/HOSTS.txt"] with (format="csv", ignoreFirstRecord=False);
 let Adult1 = externaldata(type: string,type2:string, type3:string)[@"https://raw.githubusercontent.com/StevenBlack/hosts/master/alternates/porn/hosts"] with (format="csv", ignoreFirstRecord=False);
 let Adult2 = externaldata(type: string)[@"https://raw.githubusercontent.com/columndeeply/hosts/main/hosts01"] with (format="csv", ignoreFirstRecord=False);

@@ -1,4 +1,4 @@
 AzureActivity
 | where OperationNameValue == "StopWebSite" or OperationName == "DeleteWebSite" or OperationNameValue == "MICROSOFT.WEB/SITES/DELETE"
 | where ActivityStatusValue startswith "Succe" or ActivityStatusValue startswith "accept" 
-//Azure Activity must be enabled https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics
+//Azure Activity must be enabled https://learn.microsoft.com/en-us/azure/azure-monitor/platform/activity-log?tabs=log-analytics?WT.mc_id=MVP_473477

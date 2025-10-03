@@ -2,4 +2,4 @@ DeviceRegistryEvents
 | where ActionType == "RegistryValueSet" //or ActionType == "RegistryKeyCreated"
 | where RegistryKey == @"HKEY_CURRENT_USER\Software\Microsoft\Global Secure Access Client"
 | where RegistryValueName == "IsPrivateAccessDisabledByUser"
-| where RegistryValueData == "1" ///If the registry value doesn't exist, the default value is 0x0, Private Access is enabled. https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-install-windows-client#disable-or-enable-private-access-on-the-client
+| where RegistryValueData == "1" ///If the registry value doesn't exist, the default value is 0x0, Private Access is enabled. https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-install-windows-client#disable-or-enable-private-access-on-the-client?WT.mc_id=MVP_473477

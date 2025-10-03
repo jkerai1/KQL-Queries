@@ -2,4 +2,4 @@
 AuditLogs
 | where OperationName == "Add policy"
 | where TargetResources[0].displayName == "ApplicationManagementPolicy"
-//Ref https://learn.microsoft.com/en-us/graph/api/tenantappmanagementpolicy-update?view=graph-rest-1.0&tabs=http
+//Ref https://learn.microsoft.com/en-us/graph/api/tenantappmanagementpolicy-update?view=graph-rest-1.0&tabs=http?WT.mc_id=MVP_473477

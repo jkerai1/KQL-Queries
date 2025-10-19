@@ -1,0 +1,19 @@
+//Original Source: https://azurewithtom.com/posts/MSRC-Case-When-Temporary-Global-Admin-Rights-Don-t-Expire-in-Microsoft-Entra-PIM/
+AuditLogs
+| where TimeGenerated >= ago(90d)
+| where OperationName == "Remove eligible member from role in PIM completed (timebound)"
+| where Result == "failure"
+| where ResultReason contains "CannotDeleteLastAdminAssignment"
+| extend
+    TargetUser = tostring(TargetResources[2].userPrincipalName),
+    RoleName = tostring(TargetResources[0].displayName)
+//| where RoleName == "Global Administrator" //if you want scope to only GA as per the original article
+| project
+    TimeGenerated,
+    OperationName,
+    TargetUser,
+    RoleName,
+    ResultReason,
+    CorrelationId
+| sort by TimeGenerated desc
+//Always maintain a breakglass. see my article on breakglass guidance here https://www.linkedin.com/pulse/main-reason-you-shouldnt-exclude-break-glass-group-access-kerai-4dtve/

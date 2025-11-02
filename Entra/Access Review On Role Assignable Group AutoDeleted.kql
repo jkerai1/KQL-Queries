@@ -1,0 +1,4 @@
+AuditLogs
+| where TimeGenerated > ago(90d)
+| where OperationName == "Delete access review"
+| where AdditionalDetails[0].value endswith "was auto-deleted because a group in this review was assigned to a privileged role" //This happens when a role such as identity Governance Admin Tries to do an access review on a role assignable group.

@@ -1,0 +1,41 @@
+//Full credit goes to https://www.chanceofsecurity.com/post/mastering-microsoft-entra-authentication-contexts-part-4-monitoring-and-reporting. I did not write this query
+SigninLogs
+| where TimeGenerated between (ago(30d) .. now())
+| where isnotempty(AuthenticationContextClassReferences)
+| extend ACR = todynamic(AuthenticationContextClassReferences)
+| mv-expand ac = ACR
+| extend d = todynamic(ac)
+| extend AuthContextId = coalesce(tostring(d.id), tostring(ac)),
+         AuthContextDetail = tolower(tostring(d.detail))
+| where AuthContextDetail == "required" and isnotempty(AuthContextId)
+| extend AppliedCAPs = todynamic(coalesce(column_ifexists("AppliedConditionalAccessPolicies", dynamic(null)),
+                                          column_ifexists("AppliedConditionalAccessPolicies_dynamic", dynamic(null)), dynamic([]))),
+         ConfigCAPs  = todynamic(coalesce(column_ifexists("ConditionalAccessPolicies", dynamic(null)),
+                                          column_ifexists("ConditionalAccessPolicies_dynamic", dynamic(null)), dynamic([])))
+| extend PoliciesAll = array_concat(AppliedCAPs, ConfigCAPs)
+| mv-apply pol = PoliciesAll on (
+    extend polId   = tostring(coalesce(pol.policyId, pol.id)),
+           polName = tostring(coalesce(pol.displayName, pol.policyName)),
+           polRes  = tostring(pol.result),
+           polAcrs = todynamic(pol["conditions"]["applications"]["authenticationContextClassReferences"]),
+           polJson = tostring(pol)
+    | extend matched = iif(isnotempty(polAcrs) and array_index_of(polAcrs, AuthContextId) >= 0, 1,
+                           iif(polJson has_cs "\"authenticationContextClassReferences\"" and polJson has_cs strcat("\"", AuthContextId, "\""), 1, 0))
+    | project polId, polName, polRes, matched
+)
+| summarize
+    RequiringPolicyIds   = make_set_if(polId,   matched == 1, 50),
+    RequiringPolicyNames = make_set_if(polName, matched == 1, 50),
+    CandidatePolicyIds   = make_set_if(polId,   polRes =~ "success", 50),
+    CandidatePolicyNames = make_set_if(polName, polRes =~ "success", 50)
+  by TimeGenerated, Id, UserPrincipalName, UserId,
+     AppDisplayName, ResourceDisplayName, ClientAppUsed,
+     AuthContextId, IPAddress, SessionId
+| project
+    SignInTime = TimeGenerated,
+    UserPrincipalName, UserId,
+    AppDisplayName, ResourceDisplayName, ClientAppUsed,
+    AuthContextId,
+    RequiringPolicyIds, RequiringPolicyNames,
+    CandidatePolicyIds, CandidatePolicyNames,IPAddress, SessionId
+| order by SignInTime desc

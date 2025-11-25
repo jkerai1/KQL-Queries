@@ -1,0 +1,8 @@
+//To be run from Resource Graph Explorer
+//Credit to efem from Microsoft Azure Discord
+resourcechanges
+| extend vmSize = properties.changes["properties.hardwareProfile.vmSize"], changeTime = todatetime(properties.changeAttributes.timestamp), targetResourceId = tostring(properties.targetResourceId), changeType = tostring(properties.changeType) 
+| where isnotempty(vmSize) 
+| order by changeTime desc 
+//| where properties.changeAttributes.changedBy has "@"
+| project changeTime, targetResourceId, changeType, properties.changes, previousSize = vmSize.previousValue, newSize = vmSize.newValue, properties.changeAttributes.changedBy, properties.changeAttributes.clientType

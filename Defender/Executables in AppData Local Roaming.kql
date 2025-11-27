@@ -3,3 +3,4 @@
 DeviceProcessEvents
 | where InitiatingProcessFolderPath contains "\\appdata\\roaming\\" and InitiatingProcessFileName has_any (".exe",".ps1",".msi",".bat",".scr",".cmd",".inf",".cab",".iso",".dll",".hta",".jar",".msc",".msix",".docm",".xlsm",".pif",".ppa",".reg",".scf",".sct",".sys",".vb",".vbe",".vbs",".wsh",".psm1")
 | summarize by InitiatingProcessVersionInfoProductName,InitiatingProcessFileName,InitiatingProcessFolderPath,DeviceName, AccountName, ProcessCommandLine
+//Lots more executable types can be added not a comprehensive list

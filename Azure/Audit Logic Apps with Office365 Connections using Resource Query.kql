@@ -1,3 +1,4 @@
+//Credit: santisq
 resources
 | where ['type'] == 'microsoft.logic/workflows'
 | extend connections = properties['parameters']['$connections']['value']

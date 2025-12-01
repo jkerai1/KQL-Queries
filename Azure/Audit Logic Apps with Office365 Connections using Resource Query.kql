@@ -1,0 +1,17 @@
+resources
+| where ['type'] == 'microsoft.logic/workflows'
+| extend connections = properties['parameters']['$connections']['value']
+| mv-expand key = bag_keys(connections)
+| where key startswith 'office365'
+| extend connectionId = tostring(connections[tostring(key)]['connectionId'])
+| join kind=inner (
+    resources
+    | where ['type'] == 'microsoft.web/connections'
+        //and properties['authenticatedUser']['name'] =~ 'mySMBemail@company.com'
+    | project
+        connectionId = id,
+        connectionName = name,
+        connectionProperties = properties,
+        connectionResourceGroup = resourceGroup
+) on connectionId
+| project-away connectionId1

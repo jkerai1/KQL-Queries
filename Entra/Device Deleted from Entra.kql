@@ -1,0 +1,9 @@
+AuditLogs
+| where TimeGenerated > ago(90d)
+| where OperationName == "Delete device"
+| where Result == "success"
+| extend TargetId = tostring(TargetResources[0].id)
+| extend Target = substring(tostring(TargetResources[0].userPrincipalName),32)//replace_string(tostring(TargetResources[0].userPrincipalName),TargetId,'')
+| extend DisplayName = tostring(TargetResources[0].userPrincipalName)
+| extend Initiator =iff(isempty(parse_json(tostring(InitiatedBy.user)).userPrincipalName),parse_json(tostring(InitiatedBy.app)).displayName,(parse_json(tostring(InitiatedBy.user)).userPrincipalName))
+| extend IPAddress= parse_json(tostring(InitiatedBy.user)).ipAddress

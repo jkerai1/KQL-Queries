@@ -1,0 +1,6 @@
+//https://github.com/bountyyfi/Azure-APIM-Cross-Tenant-Signup-Bypass
+//Remove Basic authentication from APIM developer portals ASAP, insecure default!
+resources
+| where type == "microsoft.apimanagement/service/identityproviders"
+| where name endswith "/basic"
+| project apimInstance=tostring(split(id, "/providers/Microsoft.ApiManagement/service/")[1]), resourceGroup, subscriptionId

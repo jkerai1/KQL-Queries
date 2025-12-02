@@ -1,0 +1,9 @@
+AuditLogs
+| where TimeGenerated > ago(90d)
+| where OperationName == "Disable account"
+| where Result == "success"
+| extend Target = tostring(TargetResources[0].userPrincipalName)
+| extend TargetId = TargetResources[0].id
+| extend DisplayName = tostring(TargetResources[0].userPrincipalName)
+| extend Initator =iff(isempty(parse_json(tostring(InitiatedBy.user)).userPrincipalName),parse_json(tostring(InitiatedBy.app)).displayName,(parse_json(tostring(InitiatedBy.user)).userPrincipalName))
+| project TimeGenerated, Initator, Target,TargetId,DisplayName,IPAddress= parse_json(tostring(InitiatedBy.user)).ipAddress

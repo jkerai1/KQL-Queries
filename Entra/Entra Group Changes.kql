@@ -1,0 +1,11 @@
+AuditLogs
+| where TimeGenerated > ago(90d)
+| where OperationName has_any ("Add member to group" ,"Remove member from group" , "Add owner to group" )
+| extend Target = tostring(TargetResources[0].userPrincipalName)
+| extend TargetId = TargetResources[0].id
+| extend DisplayName = tostring(TargetResources[0].userPrincipalName)
+| extend Initator =iff(isempty(parse_json(tostring(InitiatedBy.user)).userPrincipalName),parse_json(tostring(InitiatedBy.app)).displayName,(parse_json(tostring(InitiatedBy.user)).userPrincipalName))
+| extend IPAddress= parse_json(tostring(InitiatedBy.user)).ipAddress
+| extend GroupDisplayName = parse_json(tostring(parse_json(tostring(TargetResources[0].modifiedProperties))[1].newValue))
+| where GroupDisplayName != "All Users"
+| project TimeGenerated, Initator, Target,TargetId,DisplayName, IPAddress, GroupDisplayName

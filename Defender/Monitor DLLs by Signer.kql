@@ -1,6 +1,6 @@
  DeviceImageLoadEvents
 | where TimeGenerated > ago(90d) //change to 30d if using advanced hunting with no sentinel
 | where FileName contains ".dll"
-| join DeviceFileCertificateInfo on $left.SHA1 == $right.SHA1
+| join kind=leftouter DeviceFileCertificateInfo on $left.SHA1 == $right.SHA1
 | where FileName contains ".dll"
 | summarize make_set(FileName) by Signer

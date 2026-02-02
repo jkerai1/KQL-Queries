@@ -1,0 +1,4 @@
+// Reference: https://www.rapid7.com/blog/post/tr-chrysalis-backdoor-dive-into-lotus-blossoms-toolkit/
+DeviceNetworkEvents
+| where TimeGenerated > ago(90d) //according to https://notepad-plus-plus.org/news/hijacked-incident-info-update/, timeline of attack starts June 2025. Ideally search as far back to June as you can
+| where RemoteIP has_any("95.179.213.0","61.4.102.97","59.110.7.32","124.222.137.114") or RemoteUrl has_any("wiresguard.com","skycloudcenter.com")

@@ -1,0 +1,25 @@
+//Credit: https://medium.com/capturedsignal/notepad-security-incident-threat-hunting-using-kql-and-defender-for-endpoint-logs-dd83b984fcc6
+//Credit to: Bartosz Turek and Florian Roth
+let NotepadHashes =
+externaldata(
+version_tag: string,
+release_title: string,
+release_date: datetime,
+prerelease: bool,
+release_url: string,
+hash_algorithm: string,
+hash_value: string,
+inferred_asset_name: string,
+source_location: string,
+checksum_asset_name: string,
+checksum_asset_url: string
+)
+[h@'https://raw.githubusercontent.com/Neo23x0/notepad-plus-plus-hashes/refs/heads/main/notepadpp_release_hashes.csv']
+with(format = "csv", ignoreFirstRecord = true)
+| distinct hash_value;
+DeviceProcessEvents
+| where TimeGenerated > todatetime('2025-06-01T00:00:00.00Z') // "The incident began from June 2025"
+| where InitiatingProcessCommandLine startswith '"gup.exe"'
+| where FolderPath <> "C:\\Windows\\explorer.exe"
+| where FolderPath <> "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+| where not(SHA256 has_any (NotepadHashes))

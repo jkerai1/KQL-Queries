@@ -1,0 +1,18 @@
+// Reference: https://medium.com/capturedsignal/notepad-security-incident-threat-hunting-using-kql-and-defender-for-endpoint-logs-dd83b984fcc6
+//Credit goes to Bartosz Turek
+let AllowedRemoteUrls = dynamic([  
+    "notepad-plus-plus.org",  
+    "github.com",  // assumption that malware was not hosted on github
+    ".githubusercontent.com", // assumption that malware was not hosted on github
+    "sourceforge.net",  //assumption that malware was not hosted on sourceforge
+    "globalsign.com" // cert signing logs
+]);  
+DeviceNetworkEvents
+| where TimeGenerated > todatetime('2025-06-01T00:00:00.00Z') // "The incident began from June 2025"
+| where InitiatingProcessCommandLine startswith '"gup.exe"'
+| where not(RemoteUrl has_any (AllowedRemoteUrls))  
+| where RemoteIPType <> "Loopback"
+| where isnotempty( RemoteIP)
+| extend IPGeoLocation = geo_info_from_ip_address(RemoteIP) // adding geolocation context
+| extend RemoteIPLocation = tostring(IPGeoLocation.country)
+| project-reorder TimeGenerated, DeviceName, ActionType, InitiatingProcessCommandLine, InitiatingProcessFolderPath, RemoteIP, RemoteUrl, RemoteIPLocation, RemotePort 

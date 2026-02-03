@@ -1,0 +1,12 @@
+//Credit: https://medium.com/capturedsignal/notepad-security-incident-threat-hunting-using-kql-and-defender-for-endpoint-logs-dd83b984fcc6
+//Credit to: Bartosz Turek
+DeviceProcessEvents
+| where TimeGenerated > todatetime('2025-06-01T00:00:00.00Z') // "The incident began from June 2025"
+| where InitiatingProcessCommandLine startswith '"gup.exe"'
+| project-reorder TimeGenerated, DeviceName, ActionType, FileName, FolderPath, ProcessCommandLine, SHA1, SHA256, MD5
+| where FolderPath <> "C:\\Windows\\explorer.exe"
+| where FolderPath <> "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+| distinct SHA256
+| join (DeviceNetworkEvents 
+| where TimeGenerated > todatetime('2025-06-01T00:00:00.00Z')) 
+on $left.SHA256 == $right.InitiatingProcessSHA256

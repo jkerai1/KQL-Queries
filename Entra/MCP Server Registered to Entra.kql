@@ -1,0 +1,4 @@
+AuditLogs
+| where ActivityDisplayName contains "permission grant"
+//| where parse_json(TargetResources)["0.displayName"] == 'Microsoft MCP Server for Enterprise' //Example https://learn.microsoft.com/en-us/graph/mcp-server/get-started?tabs=http%2Cvscode
+| where tostring(parse_json(TargetResources)[0].modifiedProperties) contains "MCP." //MCP permissions have MCP. prefix, for example "MCP.AccessReview.Read.All, MCP.AdministrativeUnit.Read.All, MCP.Application.Read.All"

@@ -1,0 +1,25 @@
+//Query from https://sentinel.blog/consentfix-securing-your-tenant-against-oauth-authorisation-code-theft/
+//Credit: Toby G
+// Focus on non-interactive sign-ins to vulnerable applications from unexpected locations
+let VulnerableApps = dynamic([
+    "04b07795-8ddb-461a-bbee-02f9e1bf7b46",  // Azure CLI
+    "1950a258-227b-4e31-a9cf-717495945fc2",  // Azure PowerShell
+    "04f0c124-f2bc-4f59-8241-bf6df9866bbd",  // Visual Studio
+    "aebc6443-996d-45c2-90f0-388ff96faa56",  // VS Code
+    "12128f48-ec9e-42f0-b203-ea49fb6af367"   // Teams PowerShell
+]);
+let TimeWindow = 24h;
+// Get successful interactive sign-ins
+let InteractiveSessions = SigninLogs
+| where TimeGenerated > ago(TimeWindow)
+| where AppId in (VulnerableApps)
+| where ResultType == 0
+| where AuthenticationRequirement in ("singleFactorAuthentication", "multiFactorAuthentication")
+| extend InteractiveTime = TimeGenerated
+| extend LocationDetailsJson = parse_json(LocationDetails)
+| extend InteractiveLocation = tostring(LocationDetailsJson.countryOrRegion)
+| extend InteractiveCity = tostring(LocationDetailsJson.city)
+| project UserPrincipalName, CorrelationId, InteractiveTime, InteractiveLocation, InteractiveCity, IPAddress, AppDisplayName, SessionId = CorrelationId;
+// Get non-interactive token requests
+let NonInteractiveSessions = AADNonInteractiveUserSignInLogs
+| where TimeGenerated > ago(TimeWindow)

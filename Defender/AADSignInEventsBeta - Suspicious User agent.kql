@@ -1,3 +1,4 @@
+//Legacy Query, please use: https://github.com/jkerai1/KQL-Queries/blob/main/Defender/EntraIdSignInEvents%20-%20Suspicious%20User%20agent.kql
 //This query leverages AADSignInEventsBeta (XDR only table) to look for suspicious User agents
 let UserAgents = externaldata(UserAgent: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/MDA/BannedUserAgentsList.txt"] with (format="txt", ignoreFirstRecord=False); //I switched to txt after some time so ignore the inconsistency with the screenshot
 AADSignInEventsBeta

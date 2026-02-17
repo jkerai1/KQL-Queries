@@ -1,0 +1,5 @@
+//When an agent is removed from Entra, the agentic user behind the identity is also removed
+AuditLogs
+| search "Security Copilot Agent Management"
+| where OperationName == @"Delete user"
+| where Identity == @"Security Copilot Agent Management"

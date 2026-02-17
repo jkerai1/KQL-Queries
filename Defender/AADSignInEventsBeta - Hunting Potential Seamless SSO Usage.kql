@@ -1,3 +1,4 @@
+//Legacy query, please use https://github.com/jkerai1/KQL-Queries/blob/main/Defender/EntraIdSignInEvents%20-%20Hunting%20Potential%20Seamless%20SSO%20Usage.kql instead
 //This query is for those who do not ingest AADNonInteractiveSignins and don't have MDI but have Advanced Hunting available
 //You should disable Seamless SSO and favour SSO from the PRT instead i.e. Entra Join/Hybrid Join/Entra Register
 //Ref 1: https://ourcloudnetwork.com/why-you-should-disable-seamless-sso-in-microsoft-entra-connect/

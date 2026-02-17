@@ -1,0 +1,10 @@
+//This query is a replacement to https://github.com/jkerai1/KQL-Queries/blob/main/Defender/AADSignInEventsBeta%20-%20Hunting%20Potential%20Seamless%20SSO%20Usage.kql
+//This query is for those who do not ingest AADNonInteractiveSignins and don't have MDI but have Advanced Hunting available
+//You should disable Seamless SSO and favour SSO from the PRT instead i.e. Entra Join/Hybrid Join/Entra Register
+//Ref 1: https://ourcloudnetwork.com/why-you-should-disable-seamless-sso-in-microsoft-entra-connect/
+//Ref 2: https://nathanmcnulty.com/blog/2025/08/finding-seamless-sso-usage/#:\~:text=The%20resulting-,Graph%20PowerShell,-will%20look%20like
+EntraIdSignInEvents
+| where ApplicationId == ""
+| where parse_json(LogonType)[0] == 'nonInteractiveUser'
+| where EndpointCall == @"WindowsAuthenticationController:sso"
+| summarize count() by AccountUpn,DeviceName,DeviceTrustType

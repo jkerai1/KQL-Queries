@@ -1,0 +1,8 @@
+//This query is the update to https://github.com/jkerai1/KQL-Queries/blob/main/Defender/AADSignInEventsBeta%20-%20Suspicious%20User%20agent.kqlhttps://github.com/jkerai1/KQL-Queries/blob/main/Defender/AADSignInEventsBeta%20-%20Suspicious%20User%20agent.kql
+//This query leverages EntraIdSignInEvents (XDR only table) to look for suspicious User agents
+let UserAgents = externaldata(UserAgent: string)[@"https://raw.githubusercontent.com/jkerai1/SoftwareCertificates/refs/heads/main/Bulk-IOC-CSVs/MDA/BannedUserAgentsList.txt"] with (format="txt", ignoreFirstRecord=False); //I switched to txt after some time so ignore the inconsistency with the screenshot
+EntraIdSignInEvents
+//| where ErrorCode == 0 //Uncomment if you only want successes
+| where UserAgent has_any(UserAgents)
+| summarize count() by UserAgent //https://user-agents.net/lookup can be a good reason to lookup strings or https://useragents.io/parse
+//| summarize count() by UserAgent,AccountUpn,Application //Uncomment to see users and applications

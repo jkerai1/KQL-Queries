@@ -1,0 +1,4 @@
+DeviceEvents
+| where TimeGenerated > ago(90d)
+| where ActionType  == "SmartScreenUserOverride" or (ActionType == "NetworkProtectionUserBypassEvent") // logs when users click past a warning given by MDE. This can be from MDE IOCs or MDA which creates MDE IOCs in the background
+| project-reorder RemoteUrl, InitiatingProcessAccountUpn, DeviceName,MachineGroup, ActionType,InitiatingProcessFileName

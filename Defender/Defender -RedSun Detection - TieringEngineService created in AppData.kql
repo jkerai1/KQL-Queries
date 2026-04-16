@@ -1,0 +1,8 @@
+//https://github.com/Nightmare-Eclipse/RedSun
+//Uses a Defender detection to escalate to system. Note I couldn't get this exploit in MDE. It will fail to request a batch oplock on the update file.
+// The binary/code supplied in repo uses an EICAR signature but a threatactor could subs this for anything so long as defender is triggered.
+//Code will back out if real time monitoring is not enabled.
+DeviceFileEvents
+| where ActionType == "FileCreated"
+| where FileName == "TieringEngineService.exe" //Binary creates its own File in DoCloudStuff()
+| where FolderPath contains @"\AppData\" //File Created here but legitimate binary is in System32 path

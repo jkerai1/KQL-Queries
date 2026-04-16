@@ -5,8 +5,8 @@
 DeviceEvents
 | where ActionType contains "NamedPipeEvent"
 | where parse_json(AdditionalFields)["RemoteClientsAccess"] == 'AcceptRemote'
-| where parse_json(AdditionalFields)["PipeName"] == @'\Device\NamedPipe\REDSUN' //Low Fidelity Named Pipe (Line 518) Name can be changed but included here
+| where parse_json(AdditionalFields)["PipeName"] == @'\Device\NamedPipe\REDSUN' //Low Fidelity Named Pipe (Line 518 in Code) Name can be changed but included here
 | where parse_json(AdditionalFields)["DesiredAccess"] == '1704351' //Technically Access Mask can be modified
 | where InitiatingProcessAccountName != @"system" and InitiatingProcessAccountName != "network service" and AccountSid != @"S-1-5-18"//PoC is from unprivileged User
 | where parse_json(AdditionalFields)["FileOperation"] == 'File created'
-| where InitiatingProcessVersionInfoCompanyName != @"Microsoft Corporation" //File created namedpipe is the RedSun.exe binary
+| where InitiatingProcessVersionInfoCompanyName != @"Microsoft Corporation" //File created that created the namedpipe is the RedSun.exe binary (filename can be renamed)

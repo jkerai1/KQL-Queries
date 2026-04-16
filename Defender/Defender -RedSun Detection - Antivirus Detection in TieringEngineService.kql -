@@ -1,0 +1,7 @@
+//https://github.com/Nightmare-Eclipse/RedSun
+//Uses a Defender detection to escalate to system. Note I couldn't get this exploit in MDE. It will fail to request a batch oplock on the update file.
+// The binary/code supplied in repo uses an EICAR signature but a threatactor could subs this for anything so long as defender is triggered.
+//Code will back out if real time monitoring is not enabled.
+DeviceEvents
+| where FileName == @"tieringengineservice.exe" //Abused service, hardcoded string in Code.
+| where ActionType == @"AntivirusDetection" //Exploit requires Defender to detect a threat

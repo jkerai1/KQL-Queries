@@ -1,0 +1,20 @@
+//https://github.com/Nightmare-Eclipse/RedSun
+//Uses a Defender detection to escalate to system. Note I couldn't get this exploit in MDE. It will fail to request a batch oplock on the update file.
+// The binary/code supplied in repo uses an EICAR signature but a threatactor could subs this for anything so long as defender is triggered.
+//Code will back out if real time monitoring is not enabled.
+//Detection essentially combines https://github.com/jkerai1/KQL-Queries/blob/main/Defender/Defender%20-RedSun%20Detection%20-%20Antivirus%20Detection%20in%20TieringEngineService.kql%20- with the named pipe creation detection here https://github.com/jkerai1/KQL-Queries/blob/main/Defender/Defender%20-RedSun%20Detection%20-%20NamedPipe%20Detection.kql 
+//Credit: https://thecollective.eu/detecting-redsun-local-privilege-escalation/
+let Lookback = 4h;
+
+let deviceEvents = materialize(
+
+    DeviceEvents
+    | where TimeGenerated > ago(Lookback)
+    | where ActionType == “NamedPipeEvent” or ActionType == “AntivirusDetection”
+
+);
+deviceEvents
+| where ActionType == “NamedPipeEvent”
+| where tostring(parse_json(AdditionalFields).FileOperation) in (“File created”, “File Opened”)
+| join kind=inner (deviceEvents| where ActionType == “AntivirusDetection”) on InitiatingProcessId and InitiatingProcessSHA256 and DeviceId
+| join kind=inner (DeviceProcessEvents| where InitiatingProcessFolderPath contains “System32″| where InitiatingProcessIntegrityLevel == “System”) on DeviceId and InitiatingProcessSHA256

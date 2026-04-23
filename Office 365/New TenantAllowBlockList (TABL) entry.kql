@@ -1,0 +1,7 @@
+CloudAppEvents 
+| where ActionType == "New-TenantAllowBlockListItems"
+| extend Notes = extract(@'"Notes","Value":"(.*?)"', 1, tostring(ActivityObjects))
+| extend Url = replace_string(extract(@'Name":"Entries","Value":"(.*?)"', 1, tostring(ActivityObjects)), ".", "[.]")
+| extend Expiration = replace_string(extract(@'"Name":"ExpirationDate","Value":"(.*?)"', 1, tostring(ActivityObjects)), ".", "[.]")
+//| project-reorder Notes, Url, Expiration
+//| project TimeGenerated, ObjectName, Notes, Url, Expiration, IPAddress

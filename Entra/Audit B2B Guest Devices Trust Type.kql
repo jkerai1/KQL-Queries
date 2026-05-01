@@ -1,0 +1,14 @@
+//Shouthout johannesblog.com for the idea
+SigninLogs
+//| where AppDisplayName =~ "Microsoft Teams"
+| extend TrustType = tostring(DeviceDetail.trustType)
+| where CrossTenantAccessType == @"b2bCollaboration"
+| where AADTenantId != HomeTenantId //exclude B2b outbound
+| where UserType == "Guest"
+| project TimeGenerated, UserPrincipalName, AppDisplayName, IPAddress, TrustType,
+          DeviceId = tostring(DeviceDetail.deviceId),
+          DeviceName = tostring(DeviceDetail.displayName),
+          OperatingSystem = tostring(DeviceDetail.operatingSystem),
+          Browser = tostring(DeviceDetail.browser),
+          ConditionalAccessStatus, ResultType, ResultDescription
+| order by TimeGenerated desc

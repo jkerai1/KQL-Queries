@@ -1,0 +1,24 @@
+let OA = OfficeActivity
+| where TimeGenerated > ago(30m)
+| where Operation == "New-TenantAllowBlockListItems"
+| extend Value = extract(@'{"Name":"Entries","Value":"([^"]+)"', 1, Parameters)
+| extend Comments = extract(@'{"Name":"Notes","Value":"([^"]+)"', 1, Parameters)
+| extend Expiration = extract(@'{"Name":"NoExpiration","Value":"([^"]+)"', 1, Parameters)
+| extend Remove_After = extract(@'{"Name":"RemoveAfter","Value":"([^"]+)"', 1, Parameters)
+| extend Block_Type= extract(@'{"Name":"ListType","Value":"([^"]+)"', 1, Parameters)
+| extend Is_Blocked= extract(@'{"Name":"Block","Value":"([^"]+)"', 1, Parameters)
+| extend Is_Allowed= extract(@'{"Name":"Allow","Value":"([^"]+)"', 1, Parameters)
+| extend Submission_User = extract(@'{"Name":"SubmissionUserId","Value":"([^"]+)"', 1, Parameters)
+| extend AADSessionId = tostring(AppAccessContext.AADSessionId)
+| project OA_Time = TimeGenerated, AADSessionId, Operation, Value, Comments, Expiration, Remove_After, Block_Type, Is_Blocked, Is_Allowed, Submission_User;
+//
+let SI = union SigninLogs, AADNonInteractiveUserSignInLogs
+| where TimeGenerated > ago(2d)
+| extend AADSessionId = tostring(SessionId)
+| summarize arg_max(TimeGenerated, *) by AADSessionId
+| project AADSessionId, UserPrincipalName;
+OA
+| join kind=leftouter SI on AADSessionId
+| extend UserPrincipalName = iif(isempty(AADSessionId), "Unknown", UserPrincipalName)
+| extend Submission_User = coalesce(Submission_User, UserPrincipalName)
+| project OA_Time, Operation, Value, Comments, Expiration, Remove_After, Block_Type, Is_Blocked, Is_Allowed, Submission_User

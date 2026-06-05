@@ -1,0 +1,14 @@
+//Could be useful as part of rogue VM creation hunting, could add queries to check the tags and ensure is compliant with Org Tagging
+let operationList = dynamic(["microsoft.compute/virtualmachines/write", "microsoft.resources/deployments/write"]);
+//
+AzureActivity
+| where TimeGenerated > ago(90d)
+| where OperationNameValue in~ (operationList)
+| where ActivitySubstatusValue == "Created"
+| extend ProvisioningState = parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).provisioningState,
+VM_ID = parse_json(tostring(parse_json(tostring(parse_json(Properties).responseBody)).properties)).vmId,
+ImageReference_Offer = parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.responseBody)).properties)).storageProfile)).imageReference)).offer,
+ImageReference_Exact_version = parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.responseBody)).properties)).storageProfile)).imageReference)).exactVersion,
+ImageReference_SKU = parse_json(tostring(parse_json(tostring(parse_json(tostring(parse_json(tostring(Properties_d.responseBody)).properties)).storageProfile)).imageReference)).sku
+//Only search for Windows Server
+| where ImageReference_Offer == "WindowsServer"

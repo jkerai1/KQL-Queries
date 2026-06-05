@@ -1,0 +1,8 @@
+//Could be useful as part of rogue VM creation hunting, could add queries to check the tags and ensure is compliant with Org Tagging
+resources
+| extend OS_Name = properties['extended']['instanceView']['osName']
+| extend Created_Time = properties['timeCreated']
+| where type == "microsoft.compute/virtualmachines"
+| project name, type, OS_Name, Created_Time, resourceGroup, subscriptionId, location, id, tags, properties
+//
+| where todatetime(Created_Time) > ago(1d)

@@ -1,0 +1,7 @@
+//JsonVMAccessExtension.exe refers to the VMAccess Extension that can reset the Built-in administrator account/add new accounts. This applies to any Azure VM/AVD
+DeviceEvents
+| where TimeGenerated >ago(90d)
+//| where AdditionalFields.PipeName == "\\Device\\NamedPipe\\wkssvc" or AdditionalFields.PipeName == "\\Device\\NamedPipe\\srvsvc"
+| where AdditionalFields.RemoteClientsAccess == "AcceptRemote" 
+| where InitiatingProcessCommandLine == "JsonVMAccessExtension.exe  \"enable\"" //Azure VM account Extension
+| where InitiatingProcessAccountName == "system" //Extension runs as system

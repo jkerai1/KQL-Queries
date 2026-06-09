@@ -1,0 +1,4 @@
+DeviceEvents
+| where ActionType == @"UsbDriveMounted"
+| where parse_json(AdditionalFields)["ProductName"] == 'Virtual DVD-ROM ' //Mounting of virtual Dvd ROM i.e. ISO files - useful for hunting Rougeplanet. 
+//Block mounting of ISO files in device Control Policies.

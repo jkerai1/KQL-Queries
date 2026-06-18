@@ -1,0 +1,5 @@
+AuditLogs //Removal of roles after Granular admin relationship has ended 
+| where OperationName == @"Remove member from role"
+| extend App = InitiatedBy.app.displayName
+| where App == 'Partner Customer Delegated Admin Offline Processor'
+| extend PartnerID = AdditionalDetails[0].value

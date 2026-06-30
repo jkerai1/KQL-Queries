@@ -1,0 +1,8 @@
+IdentityInfo //Advanced Hunting table but can be ingested in sentinel
+| where TimeGenerated > ago(30d) //Will capture user if any change occured in last 30 days to user
+| where (isnotempty(AccountDomain))
+| where (isnotempty(tostring(AssignedRoles)))
+| where tostring(AssignedRoles) contains "admin"
+| where IdentityEnvironment == @"Hybrid"
+| sort by TimeGenerated desc
+| summarize by AccountUpn, OnPremObjectId, tostring(AssignedRoles), AccountDomain

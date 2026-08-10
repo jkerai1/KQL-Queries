@@ -1,0 +1,6 @@
+//For auditing Write/Delete actions upon LAW Tables
+AzureActivity
+| where TimeGenerated > ago(90d)
+| where OperationNameValue contains "MICROSOFT.OPERATIONALINSIGHTS/WORKSPACES/TABLES/"
+| extend TableName = Properties_d.resource
+| project-reorder TimeGenerated, TableName, Caller

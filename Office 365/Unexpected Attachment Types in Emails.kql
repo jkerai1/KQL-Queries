@@ -1,6 +1,6 @@
 //After Hunting consider adding attachment types in AntiMalware policy to quarantine/reject emails containing unexpected attachment types - the supplied list includes CIS baseline, the common attachment filter and some additional extension types.
 let ExtensionList = externaldata(extension: string)[@"https://raw.githubusercontent.com/jkerai1/TLD-TABL-Block/refs/heads/main/FileExtensionsForAntiMalwarePolicy.csv"] with (format="csv", ignoreFirstRecord=True)
-| project extension;
+| extend extension = strcat(".",extension);
 EmailAttachmentInfo
 | where TimeGenerated > ago(90d)
 | where FileExtension in(ExtensionList)

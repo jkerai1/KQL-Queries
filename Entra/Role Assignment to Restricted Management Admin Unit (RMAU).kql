@@ -1,0 +1,4 @@
+AuditLogs
+| where OperationName == "Add member to role scoped over Restricted Management Administrative Unit"
+//TargetResources[1].id is the Object ID of the RMAU
+// The identity performing the action from a log PoV will be the MS-PIM identity as expected

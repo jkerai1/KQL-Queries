@@ -1,0 +1,4 @@
+//Ensure you have read-only Resource Locks for critical DNS Zones and Azure Policy deny delete actions on all critical zones
+AzureActivity
+| where OperationNameValue == "privateDnsZones" or  OperationNameValue == "dnszones" //all modifications to DNS resources - you can drill down on recordsets or records e.g. dnszones/TXT. 
+//This query will also catch AVS privatecloud dnzones, getPrivateDnsZoneSuffix for DBfor SQL and privatednszonelinks and privateendpoints dns zones and links

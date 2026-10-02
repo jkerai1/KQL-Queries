@@ -1,0 +1,29 @@
+//https://learn.microsoft.com/en-us/entra/identity-platform/howto-configure-app-instance-property-locks
+AuditLogs
+| where Category == "ApplicationManagement"
+| mv-expand TargetResource = TargetResources
+| mv-expand Property = TargetResource.modifiedProperties
+| where tostring(Property.displayName) == "ServicePrincipalLockConfiguration" //| where TargetResources[0].modifiedProperties[0].displayName == "ServicePrincipalLockConfiguration"
+| extend Old = parse_json(tostring(Property.oldValue))
+| extend New = parse_json(tostring(Property.newValue))
+| extend
+Old_IsEnabled = tobool(Old[0].IsEnabled),
+New_IsEnabled = tobool(New[0].IsEnabled),
+Old_AllProperties = tobool(Old[0].AllProperties),
+New_AllProperties = tobool(New[0].AllProperties),
+Old_CredentialsWithUsageVerify = tobool(Old[0].CredentialsWithUsageVerify),
+New_CredentialsWithUsageVerify = tobool(New[0].CredentialsWithUsageVerify),
+Old_CredentialsWithUsageSign = tobool(Old[0].CredentialsWithUsageSign),
+New_CredentialsWithUsageSign = tobool(New[0].CredentialsWithUsageSign),
+Old_IdentifierUris = tobool(Old[0].IdentifierUris),
+New_IdentifierUris = tobool(New[0].IdentifierUris),
+Old_TokenEncryptionKeyId = tobool(Old[0].TokenEncryptionKeyId),
+New_TokenEncryptionKeyId = tobool(New[0].TokenEncryptionKeyId)
+| where
+(Old_IsEnabled == true and New_IsEnabled == false) or
+(Old_AllProperties == true and New_AllProperties == false) or
+(Old_CredentialsWithUsageVerify == true and New_CredentialsWithUsageVerify == false) or
+(Old_CredentialsWithUsageSign == true and New_CredentialsWithUsageSign == false) or
+(Old_IdentifierUris == true and New_IdentifierUris == false) or
+(Old_TokenEncryptionKeyId == true and New_TokenEncryptionKeyId == false)
+| project TimeGenerated,OperationName,AppName = tostring(TargetResource.displayName),InitiatedBy,Old,New

@@ -1,0 +1,20 @@
+let OnPremUsers =
+IdentityLogonEvents
+| where TimeGenerated > ago(90d)
+| where Application == "Active Directory"
+| where ActionType == "LogonSuccess"
+| summarize LastOnPremLogon=max(TimeGenerated) by AccountUpn;
+let CloudUsers =
+IdentityLogonEvents
+| where TimeGenerated > ago(90d)
+| where Application != "Active Directory"
+| where ActionType == "LogonSuccess"
+| summarize LastCloudLogon=max(TimeGenerated) by AccountUpn;
+CloudUsers
+| join kind=leftouter OnPremUsers on AccountUpn
+| where isnull(LastOnPremLogon) or LastOnPremLogon < ago(90d) //null indicates they didnt sign-in onprem during the time range
+| join IdentityInfo on AccountUpn //Any account in use will have a record in this table within the timeframe 
+| where set_has_element(SourceProviders, "ActiveDirectory")
+| where set_has_element(SourceProviders, "AzureActiveDirectory") 
+| summarize arg_max(TimeGenerated,*) by AccountUpn
+| order by LastOnPremLogon desc
